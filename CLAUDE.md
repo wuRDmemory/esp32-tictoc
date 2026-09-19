@@ -5,7 +5,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 这个仓库是什么
 
 ESP32 裸机项目（ESP-IDF v5.5.5），跑在一块 **ESP32-PICO-V3-02** 开发板上。
-只有两样东西：`hello_world/` 工程 + `test_board.py` 端到端验证脚本。
+
+| 目录 | 是什么 | 状态 |
+|---|---|---|
+| `hello_world/` | 板子验证工程 + `test_board.py` | ✅ 已完成 |
+| `voice_notes/` | **语音速记工具**（STT）：ICS-43434 采音 → PC 本地流式转写 → ollama 滚动总结 | 📋 需求已定，未开工 |
+
+### 📁 需求文档在 `hello_world/docs/`（**不在仓库根目录**）
+
+反直觉但属实 —— 用户指定的位置。**找需求文档别去根目录找。**
+
+| 文件 | 内容 |
+|---|---|
+| `hello_world/docs/prd.md` | 产品需求文档：架构、I²S 配置推导、风险登记册、用户待办 |
+| `hello_world/docs/decisions.md` | 14 条决策及依据 —— **改需求前先看这个**，避免重复讨论 |
+| `hello_world/docs/hardware.md` | 接线、零件、逐级上电验证 |
+| `hello_world/docs/cloud-asr.md` | 云 ASR 申请指引（当前走本地，不用） |
+| `hello_world/docs/modules/` | ICS-43434 数据手册（PDF + 可 grep 的 txt） |
+
+**voice_notes 的关键约束（动手前必读 `prd.md` §6）：** ICS-43434 要求
+**每 WS 帧正好 64 个 SCK**，所以 ESP32 侧必须用 `I2S_SLOT_MODE_STEREO` +
+32-bit 槽 —— 直觉上的 `MONO` 会得到 32 SCK/帧，麦克风直接不工作。
+另：`dma_frame_num <= 511`（`dma_buffer_size <= 4092` 字节）。
 
 ---
 
