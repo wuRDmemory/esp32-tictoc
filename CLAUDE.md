@@ -1,0 +1,148 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 这个仓库是什么
+
+ESP32 裸机项目（ESP-IDF v5.5.5），跑在一块 **ESP32-PICO-V3-02** 开发板上。
+只有两样东西：`hello_world/` 工程 + `test_board.py` 端到端验证脚本。
+
+---
+
+## 第一件事：激活环境
+
+**任何 `idf.py` 命令前必须先 `oesp`。** 这不是习惯问题，是硬依赖。
+
+```bash
+oesp     # 进
+doesp    # 出
+```
+
+`oesp` 定义在 `~/.zshrc`，做三件事：`conda deactivate` → `unset IDF_PYTHON_ENV_PATH` → `source ~/esp/esp-idf/export.sh`。
+
+**为什么必须**：IDF v5.5 要求 Python ≥3.9，系统自带的是 3.8；而这台机器的默认 `python3` 是 conda base 的 3.12，会跟 IDF 的 `install.sh` 抢解释器、建错 venv（espressif/esp-idf#12071）。方案是用独立 conda 环境 `esp32`(py3.11) 提供解释器，IDF 再基于它建自己的 venv。
+
+### 布局
+
+| 东西 | 位置 |
+|---|---|
+| ESP-IDF v5.5.5 | `~/esp/esp-idf` |
+| 工具链 | `~/.espressif`（约 4GB） |
+| IDF 的 venv | `~/.espressif/python_env/idf5.5_py3.11_env` |
+| conda 环境 | `esp32` (Python 3.11) |
+| 已装 target | `esp32` / `esp32s3` / `esp32c3` / `esp32c6` |
+
+`xtensa-esp-elf` 是**统一工具链**，覆盖经典 esp32 + s2 + s3 —— 装了 s3 就顺带有 esp32，不必重复下载。
+
+---
+
+## 目标板：ESP32-PICO-V3-02（**别信型号自报**）
+
+```
+$ esptool.py --port /dev/ttyUSB0 flash_id
+Chip is ESP32-PICO-V3-02 (revision v3.1)
+Features: ..., Embedded Flash, Embedded PSRAM, ...
+Detected flash size: 8MB
+```
+
+经典 ESP32（Xtensa LX6 双核）—— **不是** S3/C3/C6。8MB Flash、2MB PSRAM、CP2102N。
+
+⚠️ **用户可能会说这块是 "ESP32-PICO-KIT V4"。** 但官方文档说 V4 用的是 PICO-D4（4MB、无 PSRAM、芯片 v1.0/v1.1），**与实测三条全不符** —— 国内大量第三方板叫 PICO-KIT 却装 V3-02 模块。
+→ **板子身份一律以 `esptool flash_id` 为准**，它直接读 eFuse。丝印和型号自报都不可信。
+
+---
+
+## USB 链路：4 道闸门，缺一不通
+
+这是本项目最耗时间的地方。设备要从 Windows 一路走到 WSL 的 `/dev/ttyUSB0`：
+
+```
+Windows USB 总线
+  ↓ ①  usbipd bind --force          (Windows 管理员, 一次性)
+  ↓ ②  usbipd attach --wsl          (Windows, 每次 WSL 重启/插拔后)
+WSL 内核
+  ↓ ③  sudo modprobe cp210x         (每个 WSL 实例一次)
+  ↓ ④  sudo chmod 666 /dev/ttyUSB0  (每次 attach)
+/dev/ttyUSB0
+```
+
+### 每道闸门存在的原因
+
+**① `--force` 是必需的** —— 这台机器装了 UsbDk 过滤驱动，和 usbipd 抢同一层，不加会被拒。
+代价（usbipd 官方原话）：`"Force binding; the host cannot use the device"` —— **Windows 永久用不了这块设备**，`detach` 也不还，只有 `unbind` 才能还。
+
+> → **所以：用户说"Windows 看不到 COM 口"是预期行为，不是故障，不要去"修"。**
+> → 只有用户明确要还给 Windows 时，才跑 `usbipd unbind --busid 4-4`。
+
+**② `attach` 是内存态** —— WSL 重启必丢。**BUSID 是物理端口地址，换 USB 插口就变**，必须 `usbipd list` 重查。
+
+**③④ 都源于：这台 WSL 的 PID 1 是 `init` 而不是 systemd，没有 udev daemon。**
+- ③：Linux 正常靠 udev 读设备 modalias 自动 modprobe，这里得手动。**模块加载后常驻，每个 WSL 实例只需一次。**
+- ④：devtmpfs 建节点用默认权限 `root:root 0600`。udev 在的话会按 Ubuntu 自带规则归入 `dialout` 组（用户在该组里，自动可用）。**每次 attach 都要重来**，节点重建权限就复位。
+
+### 诊断命令（定位卡在哪一层）
+
+```bash
+"/mnt/c/Program Files/usbipd-win/usbipd.exe" list   # ①② 的状态
+lsmod | grep cp210x                                  # ③
+ls -la /dev/ttyUSB0                                  # ④
+dmesg | tail -12                                     # 内核侧的真相
+```
+
+Windows 侧设备状态（判断驱动是否被 usbipd 接管）：
+```bash
+powershell.exe -NoProfile -Command "Get-PnpDevice | Where-Object { \$_.InstanceId -like '*10C4*' } | Format-List FriendlyName, Status, Problem"
+```
+绑定时会显示 `FriendlyName: USBIP Shared Device` —— 就是它把 CP210x 的 COM 驱动挤掉了。
+
+### 陷阱
+
+- **同一时刻只有一个程序能开 `/dev/ttyUSB0`。** 开着 `idf.py monitor` 时跑 `test_board.py` 会报 `multiple access on port` —— **那不是 bug**，先 `Ctrl+]` 退出监视器。
+- `usbipd list` 的 `Persisted:` 段目前为空，**`bind` 能否扛过 Windows 重启未经验证**。重启后先看 STATE 列：显示 `Not shared` 才需要重新 bind。
+
+---
+
+## 构建 / 烧录 / 验证
+
+```bash
+cd hello_world
+idf.py build                                  # 编译
+idf.py -p /dev/ttyUSB0 flash monitor          # 烧录 + 看串口 (Ctrl+] 退出)
+
+oesp && python ../test_board.py               # 端到端验证：硬复位+抓日志+发数据验回显
+```
+
+`test_board.py` 用 DTR/RTS 硬复位板子（DTR→GPIO0 启动模式，RTS→EN 复位），然后真的发数据并校验回显，不是只看有没有输出。
+
+---
+
+## 改配置的正确姿势
+
+改 `hello_world/sdkconfig.defaults`，**不要**改 `sdkconfig`。
+
+**关键坑**：`sdkconfig` 里**已存在**的旧值**不会**被 `sdkconfig.defaults` 覆盖。改完 `.defaults` 必须重新生成：
+
+```bash
+rm -rf build sdkconfig
+idf.py set-target esp32
+grep -E "CONFIG_ESPTOOLPY_FLASHSIZE=|CONFIG_SPIRAM=" sdkconfig   # 复核
+```
+
+不这么做，你会以为改了却根本没生效。
+
+---
+
+## 这台机器的其他地雷
+
+- **绝不跑 `apt upgrade` / `apt full-upgrade` / `dist-upgrade`。** 系统的 `libc6` 被手动 dpkg 装成了 **2.35**（jammy 的版本号，`apt-cache policy` 显示无任何仓库来源），而 tuna focal 源的候选版本是 **2.31** —— 升级有把它降级回去的风险，会同时打断 ROS Noetic 和整个 WSL 环境。只用 `apt install <包名>` 精确安装。
+- PATH 上挂着 **ROS Noetic** 和 **10 个 conda 环境**（torch / cosyvoice / chatTTS / …）。不要碰它们，也不要假设 `python3` 是系统 Python。
+- `/etc/wsl.conf` 里的 `[boot] systemd=true` 是注释掉的。启用它能一并解决 ③④（udev 会活过来），但需要 `wsl --shutdown`，且会影响 docker/ROS —— **改动前先问用户**。
+
+---
+
+## 代码约定
+
+- 注释用中文。
+- **别用 `LINE_MAX` 当宏名** —— 它是 POSIX `<limits.h>` 的系统宏，重定义会触发警告。已有先例：本项目改用了 `CMD_LINE_MAX`。
+- 板子**没有用户可控 LED**（只有一颗 5V 电源指示灯），**不要写 blink 示例**。
+- 串口读必须切阻塞模式：默认 console 是**非阻塞**的，直接 `fgetc` 会立刻返回 EOF（表现为"敲键盘没反应"）。需要 `uart_driver_install` + `uart_vfs_dev_use_driver`。参考 `main/hello_world_main.c` 的 `console_enable_blocking_read()`，那段是照 IDF 官方例子写的，不要自己发明。

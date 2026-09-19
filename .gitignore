@@ -1,0 +1,31 @@
+# ─── ESP-IDF 构建产物 ───
+# sdkconfig 是从 sdkconfig.defaults 生成的派生物，不入库。
+# 改配置请改 sdkconfig.defaults —— 见 CLAUDE.md「改配置的正确姿势」
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+dependencies.lock
+
+# ─── Windows 文件系统元数据 ───
+# 从 Windows 复制文件过来时会带上 ADS 数据流文件，是垃圾
+*Zone.Identifier
+
+# ─── Python ───
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ─── Claude Code 本地设置 ───
+# settings.json 是共享的；settings.local.json 是本机私有的，不入库
+.claude/settings.local.json
+
+# ─── 凭据（云 API 用，见 docs/cloud-asr.md）───
+# ⚠️ AccessKey / APIKey / APISecret 绝不能进 git
+.env
+config.local.toml
+
+# ─── 会话录音 ───
+# WAV 是二进制且体积大；sessions/*.json（转写文本）会正常入库
+voice_notes/PC/sessions/*.wav
