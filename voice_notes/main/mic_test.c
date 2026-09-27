@@ -56,6 +56,13 @@ static i2s_chan_handle_t s_rx = NULL;
 static const char *s_clk_name = "?";
 static int s_shift = 16;    /* 24bit 数据在 32bit 字的 [31:8]，故 >>16 得 16bit */
 
+/* 取哪一路。0 = 左声道（偶数下标），1 = 右声道（奇数下标）
+ *
+ * ⚠️ 为什么不一定是 0：模块上的 PS 跳线焊盘决定数据出在哪个声道。
+ *    用户的模块（见 docs/modules/93545.pdf）默认「短接右边和中间 → 左声道」，
+ *    但若被改成右声道，取左就会读到静音。与其让用户去焊板子，不如软件可切。 */
+static int s_chan = 0;
+
 /* ------------------------------------------------------------------ */
 /* I²S 初始化                                                          */
 /* ------------------------------------------------------------------ */
@@ -118,9 +125,13 @@ static void i2s_init_with_fallback(void)
 }
 
 /* ------------------------------------------------------------------ */
-/* 读一块，抽左声道并转 16bit                                          */
+/* 读一块，两路声道都抽出来并转 16bit                                   */
+/*                                                                     */
+/* 两路都抽是刻意的：只有同时看到两路，才能区分「完全没数据」和          */
+/* 「有数据但在另一个声道」—— 这两种故障的表现都是"取到静音"，          */
+/* 但病因和修法完全不同。                                              */
 /* ------------------------------------------------------------------ */
-static int read_block(int16_t *out, int n_frames)
+static int read_block(int16_t *left, int16_t *right, int n_frames)
 {
     static uint8_t raw[BYTES_PER_READ];
     size_t got = 0;
@@ -133,11 +144,48 @@ static int read_block(int16_t *out, int n_frames)
 
     const int32_t *w = (const int32_t *)raw;
     for (int i = 0; i < frames; i++) {
-        /* 每帧两个 32bit 字：偶数下标 = 左声道（LR 接地那一路） */
-        int32_t left = w[i * 2];
-        out[i] = (int16_t)(left >> s_shift);
+        if (left)  left[i]  = (int16_t)(w[i * 2]     >> s_shift);
+        if (right) right[i] = (int16_t)(w[i * 2 + 1] >> s_shift);
     }
     return frames;
+}
+
+/* ------------------------------------------------------------------ */
+/* 单声道统计                                                          */
+/* ------------------------------------------------------------------ */
+typedef struct {
+    int16_t vmin, vmax;
+    int64_t sum, sum_sq;
+    int     quiet;
+} chan_stats_t;
+
+static void stats_init(chan_stats_t *s)
+{
+    s->vmin = INT16_MAX; s->vmax = INT16_MIN;
+    s->sum = 0; s->sum_sq = 0; s->quiet = 0;
+}
+
+static void stats_add(chan_stats_t *s, int16_t v)
+{
+    if (v < s->vmin) s->vmin = v;
+    if (v > s->vmax) s->vmax = v;
+    s->sum += v;
+    s->sum_sq += (int64_t)v * v;
+    if (v > -100 && v < 100) s->quiet++;
+}
+
+static double stats_rms(const chan_stats_t *s, int n)
+{
+    return n > 0 ? sqrt((double)s->sum_sq / n) : 0.0;
+}
+
+static void stats_print(const char *name, const chan_stats_t *s, int n, bool active)
+{
+    double rms = stats_rms(s, n);
+    double dbfs = rms > 0 ? 20.0 * log10(rms / 32768.0) : -999.0;
+    printf("%-6s %s: 范围 [%6d, %6d]  峰峰 %5d  RMS %7.1f (%6.1f dBFS)  静音 %5.1f%%\n",
+           name, active ? "←" : " ", s->vmin, s->vmax, s->vmax - s->vmin,
+           rms, dbfs, n > 0 ? 100.0 * s->quiet / n : 0.0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -146,62 +194,70 @@ static int read_block(int16_t *out, int n_frames)
 static void cmd_rec(int seconds)
 {
     const int total = SAMPLE_RATE * seconds;
-    int done = 0;
-    int16_t buf[FRAMES_PER_READ];
+    int16_t lbuf[FRAMES_PER_READ], rbuf[FRAMES_PER_READ];
+    chan_stats_t L, R;
+    stats_init(&L);
+    stats_init(&R);
 
-    int16_t vmin = INT16_MAX, vmax = INT16_MIN;
-    int64_t sum = 0, sum_sq = 0;
-    int quiet = 0;
-
-    printf("\n>>> 采集 %d 秒（现在可以说话）...\n", seconds);
+    printf("\n>>> 采集 %d 秒（现在对着麦克风说话）...\n", seconds);
     fflush(stdout);
 
+    int done = 0;
     int64_t t0 = esp_log_timestamp();
     while (done < total) {
-        int n = read_block(buf, FRAMES_PER_READ);
+        int n = read_block(lbuf, rbuf, FRAMES_PER_READ);
         if (n < 0) {
-            printf("!! 读取失败，中止\n");
+            printf("!! I²S 读取失败，中止\n");
+            fflush(stdout);
             return;
         }
         for (int i = 0; i < n; i++) {
-            int16_t v = buf[i];
-            if (v < vmin) vmin = v;
-            if (v > vmax) vmax = v;
-            sum += v;
-            sum_sq += (int64_t)v * v;
-            if (v > -100 && v < 100) quiet++;
+            stats_add(&L, lbuf[i]);
+            stats_add(&R, rbuf[i]);
         }
         done += n;
     }
     int64_t ms = esp_log_timestamp() - t0;
 
-    double mean = (double)sum / done;
-    double rms  = sqrt((double)sum_sq / done);
-    double dbfs = rms > 0 ? 20.0 * log10(rms / 32768.0) : -999.0;
-    double quiet_pct = 100.0 * quiet / done;
+    /* A = 当前启用的那一路，B = 另一路 */
+    const chan_stats_t *A = s_chan ? &R : &L;
+    const chan_stats_t *B = s_chan ? &L : &R;
+    int16_t amin = A->vmin, amax = A->vmax;
+    double arms = stats_rms(A, done);
+    double adbfs = arms > 0 ? 20.0 * log10(arms / 32768.0) : -999.0;
+    double aquiet = 100.0 * A->quiet / done;
+    int a_span = amax - amin, b_span = B->vmax - B->vmin;
 
     printf("\n================ 采集统计 ================\n");
-    printf("样本数     : %d  (用了 %" PRId64 " ms, 期望 %d ms)\n",
+    printf("样本数   : %d  (耗时 %" PRId64 " ms, 期望 %d ms)\n",
            done, ms, seconds * 1000);
-    printf("最小值     : %d\n", vmin);
-    printf("最大值     : %d\n", vmax);
-    printf("峰峰值     : %d\n", vmax - vmin);
-    printf("直流偏置   : %.1f   (应接近 0)\n", mean);
-    printf("RMS        : %.1f\n", rms);
-    printf("RMS 电平   : %.1f dBFS\n", dbfs);
-    printf("静音样本比 : %.1f %%   (|样本| < 100)\n", quiet_pct);
+    stats_print("左声道", &L, done, s_chan == 0);
+    stats_print("右声道", &R, done, s_chan == 1);
+    printf("当前使用 : %s声道\n", s_chan ? "右" : "左");
+    printf("直流偏置 : %.1f   (应接近 0)\n", done ? (double)A->sum / done : 0.0);
+    printf("RMS 电平 : %.1f dBFS\n", adbfs);
     printf("==========================================\n");
 
-    /* 自动判读 —— 直接把 hardware.md §4 的判据编码进来 */
-    printf("判读: ");
-    if (vmin == 0 && vmax == 0) {
-        printf("❌ 全为 0 —— 没接到数据。查 SD 是否接对、VDD 是否供电、LR 是否接地\n");
-    } else if (vmax - vmin < 200) {
-        printf("❌ 幅度极小 —— 可能是位移方向错了。试 `shift 8`\n");
-    } else if (quiet_pct < 1.0 && (vmax > 32000 || vmin < -32000)) {
+    /* 自动判读。顺序有讲究：先排除"另一路有信号"这个最容易误判成
+     * "没数据"的情况，再依次查更大的坑。 */
+    printf("\n判读: ");
+    if (a_span < 200 && b_span >= 200) {
+        printf("❌ 数据在【%s声道】，当前取的却是【%s声道】—— 声道选错了！\n",
+               s_chan ? "左" : "右", s_chan ? "右" : "左");
+        printf("      软件修: 敲 `chan %d`\n", s_chan ? 0 : 1);
+        printf("      硬件修: 模块 PS 跳线焊盘选错（见 docs/modules/93545.pdf）\n");
+    } else if (a_span == 0 && b_span == 0) {
+        printf("❌ 两路恒为 0 —— 完全没收到数据\n");
+        printf("      依次查: 1) SD 是否接到 GPIO22  2) VDD 是否 3.3V\n");
+        printf("              3) 板子是否真在跑这个固件  4) SCK 是否接到 GPIO26\n");
+    } else if (a_span < 200) {
+        printf("❌ 幅度极小（接近噪声底）\n");
+        printf("      试: `shift 8`（位移方向错）或 `chan %d`（换一路）\n", s_chan ? 0 : 1);
+    } else if (aquiet < 1.0 && (amax > 32000 || amin < -32000)) {
         printf("❌ 满量程噪声 —— 位移过头或时钟太快。试 `shift 24`\n");
-    } else if (quiet_pct > 99.0) {
-        printf("⚠️  几乎全程静音 —— 数据通道通了但没收到声音。查 WS/SCK 是否接反\n");
+    } else if (aquiet > 99.0) {
+        printf("⚠️  几乎全程静音 —— 通道通了但没收到声音\n");
+        printf("      查: 1) WS/SCK 是否接反  2) 麦克风进音孔是否被挡住/贴板\n");
     } else {
         printf("✅ 数值看起来正常（说话时峰值应落在 ±1000 ~ ±8000）\n");
     }
@@ -226,7 +282,7 @@ static void cmd_wav(int seconds)
     uart_wait_tx_done(CONSOLE_UART, pdMS_TO_TICKS(1000));
 
     while (done < total) {
-        int n = read_block(buf, FRAMES_PER_READ);
+        int n = read_block(buf, NULL, FRAMES_PER_READ);
         if (n < 0) break;
         uart_write_bytes(CONSOLE_UART, (const char *)buf, n * 2);
         done += n;
@@ -250,6 +306,8 @@ static void print_cfg(void)
     printf("BCLK 期望  : %.3f MHz  (64 × %d)\n", 64.0 * SAMPLE_RATE / 1e6, SAMPLE_RATE);
     printf("WS   期望  : %.3f kHz\n", SAMPLE_RATE / 1000.0);
     printf("右移位数   : %d   (24bit 数据在 32bit 字的 [31:8])\n", s_shift);
+    printf("取用声道   : %s声道 (chan %d)\n", s_chan ? "右" : "左", s_chan);
+    printf("  ↑ 模块 PS 跳线决定数据出在哪个声道, 默认左声道 (见 docs/modules/93545.pdf)\n");
     printf("DMA        : 4 缓冲 × %d 帧 = %d ms 延迟\n",
            FRAMES_PER_READ, FRAMES_PER_READ * 1000 / SAMPLE_RATE * 4);
     printf("引脚       : BCLK=IO%d  WS=IO%d  DIN=IO%d\n",
@@ -265,6 +323,7 @@ static void print_help(void)
     printf("  rec [秒]    采集并打印统计量          (默认 3 秒)\n");
     printf("  wav [秒]    裸流输出 PCM，PC 侧存 WAV (默认 5 秒)\n");
     printf("  shift [n]   改 24→16bit 右移位数      (默认 16)\n");
+    printf("  chan [0|1]  取左/右声道               (默认 0=左)\n");
     printf("  cfg         重看当前配置\n");
     printf("  help        本帮助\n\n");
     fflush(stdout);
@@ -309,6 +368,14 @@ void app_main(void)
                 printf("右移位数 → %d\n", s_shift);
             } else {
                 printf("shift 取值范围 0..31\n");
+            }
+            fflush(stdout);
+        } else if (strcmp(cmd, "chan") == 0) {
+            if (arg == 0 || arg == 1) {
+                s_chan = arg;
+                printf("取用声道 → %s声道\n", s_chan ? "右" : "左");
+            } else {
+                printf("chan 只能取 0(左) 或 1(右)\n");
             }
             fflush(stdout);
         } else if (strcmp(cmd, "cfg") == 0) {
