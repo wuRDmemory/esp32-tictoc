@@ -137,6 +137,32 @@ oesp && python ../test_board.py               # 端到端验证：硬复位+抓�
 
 ---
 
+## ⚠️ sdkconfig 的静默失效坑（实测踩过）
+
+**有些 `CONFIG_*` 写进 `sdkconfig.defaults` 会被 Kconfig 静默丢弃** —— 编译通过、
+不报错、不警告，但值根本没生效。判据是 Kconfig 里那个符号**有没有 `prompt`**：
+若 prompt 带条件（如 `prompt "..." if OTHER_SYMBOL`），条件不满足时该符号
+**不可由用户赋值**，你写的值被忽略、回落默认值。
+
+**已踩过的实例**：`CONFIG_ESP_CONSOLE_UART_BAUDRATE` 的 prompt 是
+`if ESP_CONSOLE_UART_CUSTOM`（`components/esp_system/Kconfig:413`）。
+只写波特率、不选 CUSTOM → **静默回落 115200**。
+
+```kconfig
+# ✅ 正确：必须连 CUSTOM 一起选，波特率才生效
+CONFIG_ESP_CONSOLE_UART_CUSTOM=y
+CONFIG_ESP_CONSOLE_UART_CUSTOM_NUM_0=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=921600
+```
+
+同族还有一批**无 prompt 的派生符号**（`ESP_CONSOLE_UART_NUM`、
+`ESP_CONSOLE_UART` 等），它们的值由别的符号推导，直接赋值无效。
+
+> **验证方法**：改完 `.defaults` 后**必须 grep 生成的 `sdkconfig` 复核**，
+> 不能只看编译过没过。这条对所有 `CONFIG_*` 都适用。
+
+---
+
 ## 改配置的正确姿势
 
 改 `hello_world/sdkconfig.defaults`，**不要**改 `sdkconfig`。
