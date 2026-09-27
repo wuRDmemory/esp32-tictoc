@@ -27,6 +27,7 @@
 #include "freertos/task.h"
 #include "driver/i2s_std.h"
 #include "driver/uart.h"
+#include "driver/uart_vfs.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -88,6 +89,39 @@ static inline int16_t apply_dc_block(dcblk_t *d, int16_t x)
     d->x1 = (float)x;
     d->y1 = y;
     return (int16_t)y;
+}
+
+/* ------------------------------------------------------------------ */
+/* 把 console 切到阻塞读                                                */
+/*                                                                     */
+/* ⚠️ 这段是必须的，不是可选的。                                                     */
+/*                                                                     */
+/* 踩过的坑：最初我认为"本固件只有几个命令，非阻塞够用"就没做这层改造，  */
+/* 结果用户根本敲不进命令 —— console 默认非阻塞，stdin 不按行缓冲，      */
+/* 敲进去的每个字符会被切碎、逐个当指令。症状有两个，都很显眼：          */
+/*   1) 提示符疯狂刷屏（`mic> mic> mic> mic> ...`）—— 主循环在空转        */
+/*   2) "每一个输入都被当作指令"                                        */
+/*                                                                     */
+/* 本项目的 CLAUDE.md 明确写了这条（"不要自己发明"），我跳过了。         */
+/* 这段照 IDF 官方示例写，不要改。                                       */
+/* ------------------------------------------------------------------ */
+static void console_enable_blocking_read(void)
+{
+    const uart_port_t port = (uart_port_t)CONFIG_ESP_CONSOLE_UART_NUM;
+
+    /* 关掉 stdio 缓冲，否则要按好几次回车才有反应 */
+    setvbuf(stdin, NULL, _IONBF, 0);
+
+    esp_err_t err = uart_driver_install(port, 256, 0, 0, NULL, 0);
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        printf("!! UART 驱动安装失败 (%s)，将退回非阻塞模式\n", esp_err_to_name(err));
+        return;
+    }
+
+    uart_vfs_dev_use_driver(port);
+    /* 串口终端习惯：把收到的 \r 当行结束，输出 \n 时自动补 \r */
+    uart_vfs_dev_port_set_rx_line_endings(port, ESP_LINE_ENDINGS_CR);
+    uart_vfs_dev_port_set_tx_line_endings(port, ESP_LINE_ENDINGS_CRLF);
 }
 
 /* ------------------------------------------------------------------ */
@@ -434,6 +468,9 @@ static void print_help(void)
 /* ------------------------------------------------------------------ */
 void app_main(void)
 {
+    /* 必须最先做 —— 否则 stdin 不按行缓冲，命令根本敲不进去 */
+    console_enable_blocking_read();
+
     printf("\n\n=== voice_notes 阶段 1：ICS-43434 采音验证 ===\n");
     printf("IDF %s | ESP32-PICO-V3-02\n", esp_get_idf_version());
 
@@ -447,9 +484,8 @@ void app_main(void)
         fflush(stdout);
 
         if (fgets(line, sizeof(line), stdin) == NULL) {
-            /* console 默认非阻塞；空转时让出 CPU。
-             * 注意：这里不做 hello_world 里的阻塞改造 —— 本固件只用
-             * rec/wav 两个命令，非阻塞完全够用，少一层出错的可能。 */
+            /* 正常情况下不会走到这里（已切阻塞读）。留着是防御：
+             * 万一 uart_driver_install 失败退回非阻塞，也不会把 CPU 跑满 */
             vTaskDelay(pdMS_TO_TICKS(20));
             continue;
         }

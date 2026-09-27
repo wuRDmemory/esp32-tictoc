@@ -193,3 +193,37 @@ grep -E "CONFIG_ESPTOOLPY_FLASHSIZE=|CONFIG_SPIRAM=" sdkconfig   # 复核
 - **别用 `LINE_MAX` 当宏名** —— 它是 POSIX `<limits.h>` 的系统宏，重定义会触发警告。已有先例：本项目改用了 `CMD_LINE_MAX`。
 - 板子**没有用户可控 LED**（只有一颗 5V 电源指示灯），**不要写 blink 示例**。
 - 串口读必须切阻塞模式：默认 console 是**非阻塞**的，直接 `fgetc` 会立刻返回 EOF（表现为"敲键盘没反应"）。需要 `uart_driver_install` + `uart_vfs_dev_use_driver`。参考 `main/hello_world_main.c` 的 `console_enable_blocking_read()`，那段是照 IDF 官方例子写的，不要自己发明。
+
+  > ⚠️ **这条已经违反过一次，代价是用户完全没法用。** 当时在 `voice_notes/main/mic_test.c`
+  > 里写了段注释给自己开脱（"本固件命令少，非阻塞够用"），结果 console 非阻塞 +
+  > stdin 不按行缓冲 → **敲进去的每个字符被切碎、逐个当指令**，同时提示符疯狂刷屏
+  > （`mic> mic> mic> mic> ...`）。
+  >
+  > **"我有理由所以可以不做"是本项目最危险的一种想法。** 见到这类清单项，照做。
+
+### 测试硬件交互时的陷阱：瞬时输入会掩盖缓冲 bug
+
+上面那个 bug **我自己的自动化测试全都"通过"了**，因为脚本一次性 `write(b"cfg\n")` ——
+4 个字节同时到达，非阻塞的 `fgets` 正好能凑齐一整行。**但人手敲键慢，每个字符单独
+到达就被切碎。** 症状只在人手里出现。
+
+→ **凡是验证"人机输入"相关的改动，测试必须模拟人的时序**：
+
+```python
+def send_slow(ser, text, per_char=0.08):   # 逐字符 + 间隔
+    for ch in text:
+        ser.write(ch.encode()); time.sleep(per_char)
+    ser.write(b"\n")
+```
+
+推而广之：**测试通过 ≠ 用户能用。** 问自己"我的测试和真人操作差在哪"。
+
+### 串口被占用是常态，不是故障
+
+`Could not open /dev/ttyUSB0, the port is busy` 几乎总是**用户开着 `idf.py monitor`**。
+先查是谁占的，别去怀疑硬件：
+
+```bash
+lsof /dev/ttyUSB0          # 或扫 /proc/*/fd
+ps -eo pid,etime,args | grep -E "esp_idf_monitor|idf.py .*monitor"
+```
