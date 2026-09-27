@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-阶段 1 验证 · PC 侧：让板子录一段音，存成 WAV
+阶段 1 验收工具：录一段音存成 WAV，并当场分析
 
 用法:
     oesp && python capture_wav.py [秒数] [输出文件]
 
-对应 docs/hardware.md §4「第 3 级：听感」—— 这是阶段 1 的最终验收。
-前面两级（时钟对不对、数据合不合理）用板子上的 `rec` 命令做。
+为什么要有倒计时：之前是"脚本一发命令就开始录"，人来不及反应，导致
+连续几次录到的都是静音，看起来像麦克风坏了 —— 其实是配合问题。
+现在有 3 秒倒计时，节奏由你掌握。
 
-注意: 串口独占。跑之前先 Ctrl+] 退出 idf.py monitor，否则报
-      "multiple access on port"。
+注意: 串口独占。先 Ctrl+] 退出 idf.py monitor。
 """
 import math
 import struct
@@ -23,126 +23,131 @@ PORT = "/dev/ttyUSB0"
 BAUD = 921600
 
 
-def read_until(ser, marker: bytes, timeout_s=10.0):
-    """读到 marker 出现为止，返回 (marker 所在行, marker 之后的字节)"""
-    buf = b""
-    deadline = time.time() + timeout_s
-    while time.time() < deadline:
-        n = ser.in_waiting
-        chunk = ser.read(n if n else 1)
-        if not chunk:
-            continue
-        buf += chunk
-        i = buf.find(marker)
-        if i < 0:
-            # 防止无限增长
-            if len(buf) > 8192:
-                buf = buf[-1024:]
-            continue
-        j = buf.find(b"\n", i)
-        if j < 0:
-            continue
-        line = buf[i:j].decode("ascii", "replace").strip()
-        return line, buf[j + 1:]
-    return None, b""
+def send_slow(ser, text, per_char=0.05):
+    """逐字符发送。手敲的速度才是真实场景，一次性发整行会掩盖缓冲问题。"""
+    for ch in text:
+        ser.write(ch.encode())
+        time.sleep(per_char)
+    ser.write(b"\n")
 
 
 def main():
-    seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 5
+    seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 10
     outfile = sys.argv[2] if len(sys.argv) > 2 else "mic_test.wav"
 
     try:
         ser = serial.Serial(PORT, BAUD, timeout=1)
     except serial.SerialException as e:
         print(f"❌ 打不开 {PORT}: {e}")
-        print("   1) 设备在不在: ls -la /dev/ttyUSB0")
-        print("   2) 权限对不对: sudo chmod 666 /dev/ttyUSB0")
-        print("   3) 监视器占着口没: Ctrl+] 退出 idf.py monitor")
+        print("   1) 设备在不在:  ls -la /dev/ttyUSB0")
+        print("   2) 权限对不对:  sudo chmod 666 /dev/ttyUSB0")
+        print("   3) 监视器占着没: lsof /dev/ttyUSB0   （Ctrl+] 退出 idf.py monitor）")
         return 1
 
-    # DTR→GPIO0, RTS→EN。都拉低 = 正常运行模式（不复位、不进下载模式）
-    ser.setDTR(False)
-    ser.setRTS(False)
-    time.sleep(0.3)
+    try:
+        ser.setDTR(False)
+        ser.setRTS(False)
+        time.sleep(0.3)
 
-    # 等板子启动完（打开串口本身会产生一次复位脉冲）
-    print("等待板子启动...", end="", flush=True)
-    boot, _ = read_until(ser, b"mic>", timeout_s=8)
-    if boot is None:
-        print("\n⚠️  没等到提示符，仍然尝试发命令")
-    else:
-        print(" 就绪")
+        print("连接板子...", end="", flush=True)
+        t0 = time.time()
+        ready = False
+        while time.time() - t0 < 8:
+            if b"mic> " in ser.read(65536):
+                ready = True
+                break
+        print(" 就绪" if ready else " (没等到提示符，仍然继续)")
+        ser.reset_input_buffer()
 
-    ser.reset_input_buffer()
-    cmd = f"wav {seconds}\n"
-    print(f">>> 发送: {cmd.strip()}")
-    ser.write(cmd.encode())
+        # ---- 倒计时：节奏交给你 ----
+        print()
+        print("=" * 58)
+        print(f"  马上录 {seconds} 秒。请把嘴凑到麦克风 20cm 以内！")
+        print("  倒计时结束后就开始说话（随便说什么，持续说）。")
+        print("=" * 58)
+        for i in (3, 2, 1):
+            print(f"    {i} ...")
+            time.sleep(1)
+        print("    ▶▶ 开始说话！◀◀")
+        send_slow(ser, f"wav {seconds}")
 
-    header, payload = read_until(ser, b"WAV_BEGIN", timeout_s=10)
-    if header is None:
-        print("❌ 没收到 WAV_BEGIN。板子可能没在跑这个固件，或者波特率不对。")
-        ser.close()
-        return 1
+        # ---- 收 WAV_BEGIN ----
+        buf = b""
+        deadline = time.time() + 12
+        hdr = None
+        payload = b""
+        while time.time() < deadline:
+            c = ser.read(65536)
+            if c:
+                buf += c
+            i = buf.find(b"WAV_BEGIN")
+            if i >= 0:
+                j = buf.find(b"\n", i)
+                if j > 0:
+                    hdr = buf[i:j].decode()
+                    payload = buf[j + 1:]
+                    break
+        if not hdr:
+            print("❌ 没收到 WAV_BEGIN。板子在跑这个固件吗？")
+            return 1
 
-    parts = header.split()
-    if len(parts) != 3:
-        print(f"❌ 头部格式异常: {header!r}")
-        ser.close()
-        return 1
-    total, rate = int(parts[1]), int(parts[2])
-    need = total * 2
-    print(f">>> 板子在录 {total} 个样本 @ {rate} Hz（{total / rate:.1f} 秒，{need} 字节）")
+        parts = hdr.split()
+        total, rate = int(parts[1]), int(parts[2])
+        need = total * 2
 
-    pcm = bytearray(payload[:need])
-    t0 = time.time()
-    while len(pcm) < need:
-        chunk = ser.read(min(65536, need - len(pcm)))
-        if not chunk:
-            if time.time() - t0 > seconds * 3 + 15:
+        pcm = bytearray(payload[:need])
+        t0 = time.time()
+        while len(pcm) < need:
+            c = ser.read(min(65536, need - len(pcm)))
+            if c:
+                pcm += c
+            elif time.time() - t0 > seconds * 3 + 15:
                 print(f"⚠️  接收超时，只拿到 {len(pcm)}/{need} 字节")
                 break
-            continue
-        pcm += chunk
-    elapsed = time.time() - t0
-
-    tail, _ = read_until(ser, b"WAV_END", timeout_s=5)
-    ser.close()
-
-    if tail is None:
-        print("⚠️  没收到 WAV_END（数据可能截断）")
+        ser.read(4096)   # 收尾
+    finally:
+        ser.close()
 
     got = len(pcm) // 2
     if got == 0:
         print("❌ 一个样本都没收到")
         return 1
 
-    # 写 WAV
     with wave.open(outfile, "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
         w.setframerate(rate)
         w.writeframes(bytes(pcm[: got * 2]))
 
-    # 统计
-    samples = struct.unpack(f"<{got}h", bytes(pcm[: got * 2]))
-    vmin, vmax = min(samples), max(samples)
-    peak = max(abs(vmin), abs(vmax))
-    rms = (sum(s * s for s in samples) / got) ** 0.5
-    quiet = sum(1 for s in samples if -100 < s < 100) / got * 100
+    # ---- 当场分析：按 0.5 秒切块看包络 ----
+    s = struct.unpack(f"<{got}h", bytes(pcm[: got * 2]))
+    blk = rate // 2
+    print(f"\n录到 {got} 样本 = {got / rate:.1f} 秒 @ {rate} Hz\n")
+    print("  时间    电平      包络")
+    levels = []
+    for i in range(0, max(1, got - blk), blk):
+        seg = s[i:i + blk]
+        rms = math.sqrt(sum(v * v for v in seg) / len(seg))
+        db = 20 * math.log10(rms / 32768) if rms else -99.0
+        levels.append(db)
+        bar = "#" * max(0, int((db + 80) / 80 * 40))
+        print(f"  {i / rate:5.1f}s {db:6.1f} dBFS {bar}")
 
-    print(f"\n================ 接收统计 ================")
-    print(f"样本数     : {got} / {total}")
-    print(f"用时       : {elapsed:.1f} 秒  (音频时长 {got / rate:.1f} 秒)")
-    print(f"有效速率   : {got * 2 / elapsed / 1024:.1f} KB/s  (PCM 净速率应为 31.2)")
-    print(f"最小值/最大值: {vmin} / {vmax}")
-    dbfs = 20 * math.log10(peak / 32768.0) if peak > 0 else -999.0
-    print(f"峰值       : {peak}  ({dbfs:.1f} dBFS)")
-    print(f"RMS        : {rms:.1f}")
-    print(f"静音样本比 : {quiet:.1f} %")
-    print(f"==========================================")
-    print(f"\n🎧 存好了: {outfile}")
-    print(f"   播放听听能不能听清自己说话 —— 这是阶段 1 的最终验收")
-    print(f"   WSL 里可以试试: cp {outfile} /mnt/c/Users/ && 然后在 Windows 里播")
+    peak = max(abs(v) for v in s)
+    span = max(levels) - min(levels) if levels else 0
+    print(f"\n峰值 {peak} ({20 * math.log10(peak / 32768) if peak else -99:.1f} dBFS)"
+          f"   包络动态范围 {span:.1f} dB")
+    if span > 12:
+        print("✅ 有高低起伏 —— 录到语音了")
+    elif max(levels) > -45:
+        print("⚠️  有声音但偏平 —— 说话再近一点、大声一点")
+    else:
+        print("❌ 全程平稳 —— 这段里没说话，或者离得太远")
+
+    print(f"\n🎧 播放听听（WSLg 已就绪）:")
+    print(f"     paplay {outfile}")
+    print(f"   或拷到 Windows:")
+    print(f"     cp {outfile} /mnt/c/Users/$(cmd.exe /c 'echo %USERNAME%' 2>/dev/null | tr -d '\\r')/Desktop/")
     return 0
 
 

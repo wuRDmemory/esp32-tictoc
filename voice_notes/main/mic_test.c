@@ -379,6 +379,45 @@ static void cmd_wav(int seconds)
 }
 
 /* ------------------------------------------------------------------ */
+/* raw —— 打印未经位移的 32bit I²S 原始字                              */
+/*                                                                     */
+/* 用途：一次性判定"24bit 数据到底落在 32bit 字的哪几位"。             */
+/* 判据：看哪个字节恒为 0 ——                                          */
+/*   低字节恒 0  → 数据在 [31:8]，标准 I²S，即当前假设                 */
+/*   高字节恒 0  → 数据右对齐在 [23:0]，不是标准 I²S                   */
+/*   都不为 0    → 对齐位置不同，据此调整 shift                        */
+/*                                                                     */
+/* 为什么需要它：如果只是"声音偏小"，光看 dBFS 分不出是"麦克风没收到"  */
+/* 还是"收到了但位移取错了几位"。原始 32bit 是唯一能定案的证据。        */
+/* ------------------------------------------------------------------ */
+static void cmd_raw(int n)
+{
+    static uint8_t raw[BYTES_PER_READ];
+
+    printf("\n>>> 原始 32bit I²S 字（前 %d 个左声道样本）\n", n);
+    printf("    看哪个字节恒为 0 即可判定位对齐：\n");
+    printf("      低字节恒 0 → 数据在 [31:8]（标准 I²S，当前假设）\n");
+    printf("      高字节恒 0 → 数据右对齐在 [23:0]（非标准 I²S）\n\n");
+    printf("    #   左声道 raw32       右声道 raw32      >>%d 后\n", s_shift);
+    printf("  ---- ------------------ ------------------ ----------\n");
+
+    int shown = 0;
+    while (shown < n) {
+        size_t got = 0;
+        if (i2s_channel_read(s_rx, raw, sizeof(raw), &got, pdMS_TO_TICKS(1000)) != ESP_OK) break;
+        const int32_t *w = (const int32_t *)raw;
+        int frames = got / 8;
+        for (int i = 0; i < frames && shown < n; i++, shown++) {
+            printf("  %4d 0x%08" PRIX32 "       0x%08" PRIX32 "     %8d\n",
+                   shown, (uint32_t)w[i * 2], (uint32_t)w[i * 2 + 1],
+                   (int16_t)(w[i * 2] >> s_shift));
+        }
+    }
+    printf("\n");
+    fflush(stdout);
+}
+
+/* ------------------------------------------------------------------ */
 /* level —— 实时电平表                                                 */
 /*                                                                     */
 /* 为什么需要它：rec 是一次性快照，要求人"正好在这几秒里说话"，时序上    */
@@ -388,14 +427,16 @@ static void cmd_wav(int seconds)
 static void cmd_level(int seconds)
 {
     int16_t lbuf[FRAMES_PER_READ], rbuf[FRAMES_PER_READ];
-    const int blocks   = seconds * SAMPLE_RATE / FRAMES_PER_READ;
-    const int per_line = 6;                  /* 6 × 16ms ≈ 96ms 刷新一次 */
+    const int blocks = seconds * SAMPLE_RATE / FRAMES_PER_READ;
+    /* 每 ~500ms 打一行。之前用 \r 原地刷新，导致用户粘贴出来只剩最后一行，
+     * 中间的变化全被覆盖 —— 那是工具的观测缺陷，不是数据的问题。 */
+    const int per_line = SAMPLE_RATE / 2 / FRAMES_PER_READ;
 
-    printf("\n>>> 电平表 %d 秒 —— 现在开始说话，盯着数字和条子\n", seconds);
-    printf("    条子高度跟着音量走 = 麦克风正常\n");
-    printf("    一直贴在底部不动   = 没收到声音\n\n");
+    printf("\n>>> 电平表 %d 秒 —— 现在开始说话（或拍手/吹气）\n", seconds);
+    printf("    条子跟着音量走 = 麦克风正常；一直贴底 = 没收到声音\n");
+    printf("    每行 0.5 秒，最后一行是全程峰值保持\n\n");
 
-    int nb = 0;
+    int nb = 0, hold = 0;
     for (int b = 0; b < blocks; b++) {
         int n = read_block(lbuf, rbuf, FRAMES_PER_READ);
         if (n < 0) break;
@@ -408,6 +449,8 @@ static void cmd_level(int seconds)
             int a = lbuf[i] < 0 ? -lbuf[i] : lbuf[i];
             if (a > peak) peak = a;
         }
+        if (peak > hold) hold = peak;
+
         double rms  = sqrt((double)sq / n);
         double dbfs = rms > 0 ? 20.0 * log10(rms / 32768.0) : -99.0;
 
@@ -420,10 +463,24 @@ static void cmd_level(int seconds)
         memset(graph, '#', bar);
         graph[40] = '\0';
 
-        printf("\r%7.1f dBFS |%s| 峰 %5d ", dbfs, graph, peak);
+        printf("%6.1f dBFS |%s| 峰 %6d   (峰值保持 %d)\n", dbfs, graph, peak, hold);
         fflush(stdout);
     }
-    printf("\n\n完成。\n");
+
+    printf("\n================ 电平表结论 ================\n");
+    printf("全程最大峰值: %d  (%.1f dBFS)\n", hold,
+           hold > 0 ? 20.0 * log10(hold / 32768.0) : -999.0);
+    printf("参考: 正常说话(30cm) 应达到 -45 dBFS 左右, 即峰值约 1800\n");
+    if (hold < 300) {
+        printf("判读: ❌ 全程没超过 %d —— 麦克风没有收到任何声音\n", hold);
+        printf("      下一步: 敲 `raw 16` 看原始位对齐, 再试 `shift 8` / `chan 1` / `dc 0`\n");
+    } else if (hold < 1800) {
+        printf("判读: ⚠️  有信号但偏弱 —— 可能是距离远/声音小, 或位移少取了几位\n");
+        printf("      下一步: 贴近麦克风再试一次; 仍偏弱就敲 `raw 16` 定位\n");
+    } else {
+        printf("判读: ✅ 麦克风工作正常\n");
+    }
+    printf("============================================\n\n");
     fflush(stdout);
 }
 
@@ -455,6 +512,7 @@ static void print_help(void)
 {
     printf("\n命令:\n");
     printf("  level [秒]  实时电平表, 边说话边看   (默认 10 秒)  ← 验证麦克风先试这个\n");
+    printf("  raw [n]     打印原始 32bit 字, 判定位对齐 (默认 16)\n");
     printf("  rec [秒]    采集并打印统计量          (默认 3 秒)\n");
     printf("  wav [秒]    裸流输出 PCM，PC 侧存 WAV (默认 5 秒)\n");
     printf("  shift [n]   改 24→16bit 右移位数      (默认 16)\n");
@@ -496,7 +554,9 @@ void app_main(void)
         char cmd[32] = {0};
         sscanf(line, "%31s %d", cmd, &arg);
 
-        if (strcmp(cmd, "level") == 0) {
+        if (strcmp(cmd, "raw") == 0) {
+            cmd_raw(arg > 0 ? arg : 16);
+        } else if (strcmp(cmd, "level") == 0) {
             cmd_level(arg > 0 ? arg : 10);
         } else if (strcmp(cmd, "rec") == 0) {
             cmd_rec(arg > 0 ? arg : 3);
