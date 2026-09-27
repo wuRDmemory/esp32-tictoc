@@ -7,6 +7,7 @@
  *       "能收音但听不清"，极难反推。
  *
  * 命令：
+ *   level [秒]  实时电平表 —— 验证麦克风最直接的手段（边说话边看数字）
  *   rec [秒]    采集并打印统计量（对应 hardware.md §4 第 2 级验证）
  *   wav [秒]    裸流输出 16bit PCM，PC 侧存 WAV（对应第 3 级验证）
  *   shift [n]   改 24→16bit 的右移位数，默认 16（风险 R2 的诊断入口）
@@ -62,6 +63,32 @@ static int s_shift = 16;    /* 24bit 数据在 32bit 字的 [31:8]，故 >>16 �
  *    用户的模块（见 docs/modules/93545.pdf）默认「短接右边和中间 → 左声道」，
  *    但若被改成右声道，取左就会读到静音。与其让用户去焊板子，不如软件可切。 */
 static int s_chan = 0;
+
+/* 一阶直流阻断。MEMS 麦克风输出常带零点几个百分点的直流偏置（实测本模块
+ * 约 413/32768 = 1.26% FS），不除掉会让 RMS、静音比这些统计量全部失真 ——
+ * 表现是"静音比只有 1.6%"这种自相矛盾的数。产品链路本来也需要它。
+ * y[n] = x[n] - x[n-1] + R*y[n-1]，R=0.995 时截止频率约 12.7 Hz @16kHz */
+static bool s_dc_block = true;
+
+/* ⚠️ 必须按声道分开保存滤波器状态。踩过的坑：最初两路共用 s_dc_x1/s_dc_y1，
+ *    等于把左右声道当成一条交织的流在滤波 —— 右声道(SD 三态, 应恒为 0)会
+ *    捡到左声道的残留状态而出现假信号，左声道的输出同样被污染。
+ *    症状：右声道本该 [0,0]，却报出 [-336,-2]。 */
+typedef struct { float x1, y1; } dcblk_t;
+static dcblk_t s_dc[2];      /* [0]=左声道, [1]=右声道 */
+
+/* 滤波前的原始均值，用于报告被滤掉的直流到底有多大 */
+static int64_t s_raw_sum = 0, s_raw_n = 0;
+
+static inline int16_t apply_dc_block(dcblk_t *d, int16_t x)
+{
+    if (!s_dc_block) return x;
+    const float R = 0.995f;
+    float y = (float)x - d->x1 + R * d->y1;
+    d->x1 = (float)x;
+    d->y1 = y;
+    return (int16_t)y;
+}
 
 /* ------------------------------------------------------------------ */
 /* I²S 初始化                                                          */
@@ -144,11 +171,20 @@ static int read_block(int16_t *left, int16_t *right, int n_frames)
 
     const int32_t *w = (const int32_t *)raw;
     for (int i = 0; i < frames; i++) {
-        if (left)  left[i]  = (int16_t)(w[i * 2]     >> s_shift);
-        if (right) right[i] = (int16_t)(w[i * 2 + 1] >> s_shift);
+        int16_t l = (int16_t)(w[i * 2]     >> s_shift);
+        int16_t r = (int16_t)(w[i * 2 + 1] >> s_shift);
+
+        /* 先累计滤波前的值，才能报告"直流有多大" */
+        s_raw_sum += l; s_raw_n++;
+
+        if (left)  left[i]  = apply_dc_block(&s_dc[0], l);
+        if (right) right[i] = apply_dc_block(&s_dc[1], r);
     }
     return frames;
 }
+
+static void raw_reset(void) { s_raw_sum = 0; s_raw_n = 0; }
+static double raw_dc(void)  { return s_raw_n ? (double)s_raw_sum / s_raw_n : 0.0; }
 
 /* ------------------------------------------------------------------ */
 /* 单声道统计                                                          */
@@ -198,9 +234,22 @@ static void cmd_rec(int seconds)
     chan_stats_t L, R;
     stats_init(&L);
     stats_init(&R);
+    raw_reset();
 
     printf("\n>>> 采集 %d 秒（现在对着麦克风说话）...\n", seconds);
     fflush(stdout);
+
+    /* 预热：丢掉前 125ms。直流阻断器要时间收敛，否则起始瞬态会变成一个
+     * 400+ 的假峰值，把 max / 峰峰值 / 静音比全部带偏（实测踩过：
+     * 静音采集报出 峰峰 589，其中 470 是瞬态而非信号）。 */
+    const int warm = (SAMPLE_RATE / 8 + FRAMES_PER_READ - 1) / FRAMES_PER_READ;
+    for (int w = 0; w < warm; w++) {
+        read_block(lbuf, rbuf, FRAMES_PER_READ);
+    }
+
+    stats_init(&L);
+    stats_init(&R);
+    raw_reset();
 
     int done = 0;
     int64_t t0 = esp_log_timestamp();
@@ -234,8 +283,9 @@ static void cmd_rec(int seconds)
     stats_print("左声道", &L, done, s_chan == 0);
     stats_print("右声道", &R, done, s_chan == 1);
     printf("当前使用 : %s声道\n", s_chan ? "右" : "左");
-    printf("直流偏置 : %.1f   (应接近 0)\n", done ? (double)A->sum / done : 0.0);
-    printf("RMS 电平 : %.1f dBFS\n", adbfs);
+    printf("原始直流 : %.1f  (滤波前, 已由直流阻断滤除)\n", raw_dc());
+    printf("直流阻断 : %s\n", s_dc_block ? "开" : "关");
+    printf("RMS 电平 : %.1f dBFS  (已去直流)\n", adbfs);
     printf("==========================================\n");
 
     /* 自动判读。顺序有讲究：先排除"另一路有信号"这个最容易误判成
@@ -295,6 +345,55 @@ static void cmd_wav(int seconds)
 }
 
 /* ------------------------------------------------------------------ */
+/* level —— 实时电平表                                                 */
+/*                                                                     */
+/* 为什么需要它：rec 是一次性快照，要求人"正好在这几秒里说话"，时序上    */
+/* 一错就得到假阴性（实测踩过：说话测试的 RMS 比静音还低，因为没对上）。 */
+/* 电平表让人边说话边看数字抖，没有配合问题，是验证麦克风最直接的手段。 */
+/* ------------------------------------------------------------------ */
+static void cmd_level(int seconds)
+{
+    int16_t lbuf[FRAMES_PER_READ], rbuf[FRAMES_PER_READ];
+    const int blocks   = seconds * SAMPLE_RATE / FRAMES_PER_READ;
+    const int per_line = 6;                  /* 6 × 16ms ≈ 96ms 刷新一次 */
+
+    printf("\n>>> 电平表 %d 秒 —— 现在开始说话，盯着数字和条子\n", seconds);
+    printf("    条子高度跟着音量走 = 麦克风正常\n");
+    printf("    一直贴在底部不动   = 没收到声音\n\n");
+
+    int nb = 0;
+    for (int b = 0; b < blocks; b++) {
+        int n = read_block(lbuf, rbuf, FRAMES_PER_READ);
+        if (n < 0) break;
+        if (++nb % per_line) continue;
+
+        int64_t sq = 0;
+        int peak = 0;
+        for (int i = 0; i < n; i++) {
+            sq += (int64_t)lbuf[i] * lbuf[i];
+            int a = lbuf[i] < 0 ? -lbuf[i] : lbuf[i];
+            if (a > peak) peak = a;
+        }
+        double rms  = sqrt((double)sq / n);
+        double dbfs = rms > 0 ? 20.0 * log10(rms / 32768.0) : -99.0;
+
+        int bar = (int)((dbfs + 80.0) / 80.0 * 40.0);   /* -80..0 dBFS → 0..40 */
+        if (bar < 0) bar = 0;
+        if (bar > 40) bar = 40;
+
+        char graph[41];
+        memset(graph, '.', 40);
+        memset(graph, '#', bar);
+        graph[40] = '\0';
+
+        printf("\r%7.1f dBFS |%s| 峰 %5d ", dbfs, graph, peak);
+        fflush(stdout);
+    }
+    printf("\n\n完成。\n");
+    fflush(stdout);
+}
+
+/* ------------------------------------------------------------------ */
 static void print_cfg(void)
 {
     printf("\n================ 当前配置 ================\n");
@@ -307,6 +406,7 @@ static void print_cfg(void)
     printf("WS   期望  : %.3f kHz\n", SAMPLE_RATE / 1000.0);
     printf("右移位数   : %d   (24bit 数据在 32bit 字的 [31:8])\n", s_shift);
     printf("取用声道   : %s声道 (chan %d)\n", s_chan ? "右" : "左", s_chan);
+    printf("直流阻断   : %s\n", s_dc_block ? "开" : "关");
     printf("  ↑ 模块 PS 跳线决定数据出在哪个声道, 默认左声道 (见 docs/modules/93545.pdf)\n");
     printf("DMA        : 4 缓冲 × %d 帧 = %d ms 延迟\n",
            FRAMES_PER_READ, FRAMES_PER_READ * 1000 / SAMPLE_RATE * 4);
@@ -320,10 +420,12 @@ static void print_cfg(void)
 static void print_help(void)
 {
     printf("\n命令:\n");
+    printf("  level [秒]  实时电平表, 边说话边看   (默认 10 秒)  ← 验证麦克风先试这个\n");
     printf("  rec [秒]    采集并打印统计量          (默认 3 秒)\n");
     printf("  wav [秒]    裸流输出 PCM，PC 侧存 WAV (默认 5 秒)\n");
     printf("  shift [n]   改 24→16bit 右移位数      (默认 16)\n");
     printf("  chan [0|1]  取左/右声道               (默认 0=左)\n");
+    printf("  dc [0|1]    直流阻断开关              (默认 1=开)\n");
     printf("  cfg         重看当前配置\n");
     printf("  help        本帮助\n\n");
     fflush(stdout);
@@ -358,7 +460,9 @@ void app_main(void)
         char cmd[32] = {0};
         sscanf(line, "%31s %d", cmd, &arg);
 
-        if (strcmp(cmd, "rec") == 0) {
+        if (strcmp(cmd, "level") == 0) {
+            cmd_level(arg > 0 ? arg : 10);
+        } else if (strcmp(cmd, "rec") == 0) {
             cmd_rec(arg > 0 ? arg : 3);
         } else if (strcmp(cmd, "wav") == 0) {
             cmd_wav(arg > 0 ? arg : 5);
@@ -377,6 +481,10 @@ void app_main(void)
             } else {
                 printf("chan 只能取 0(左) 或 1(右)\n");
             }
+            fflush(stdout);
+        } else if (strcmp(cmd, "dc") == 0) {
+            s_dc_block = (arg != 0);
+            printf("直流阻断 → %s\n", s_dc_block ? "开" : "关");
             fflush(stdout);
         } else if (strcmp(cmd, "cfg") == 0) {
             print_cfg();
