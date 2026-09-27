@@ -14,7 +14,7 @@
 
 | 该考虑上云 | 不该上云 |
 |---|---|
-| 本地识别率不满意，且换模型也救不回来 | 只是偶尔识别错 —— 先调 `chunk_size` 和静音阈值 |
+| 本地识别率不满意，且换模型也救不回来 | 只是偶尔识别错 —— 先调静音阈值、换个 ASR 模型（见 `prd.md` D7.1） |
 | 想在没有 GPU 的机器上跑 | 你的 4070 Ti Super 闲着 |
 | 想支持方言 / 多语种 | 只讲普通话 |
 | 需要说话人分离等高级功能 | 不需要 |
@@ -160,13 +160,20 @@ from .base import AsrProvider
 
 class CloudAliyunProvider(AsrProvider):
     def __init__(self, appkey, token): ...
-    def feed(self, pcm: bytes) -> str:
-        """喂一块 16k/16bit/mono PCM，返回当前累计文本"""
-        ...
-    def finalize(self) -> str:
-        """停止时调用 —— 对应本地实现的 is_final=True flush"""
+
+    def transcribe(self, wav_path: str, on_progress=None) -> str:
+        """把整段 WAV 上传，返回带标点的全文。
+
+        注意：v1.1 起接口是"整段"而非"流式"（见 prd.md D12），
+        所以这里用录音文件识别（一句话/录音文件）接口即可，
+        不必接实时 WebSocket 接口 —— 后者复杂度高得多。
+        """
         ...
 ```
+
+> **v1.1 的一个附带好处**：改成整段转写后，云侧也**不必再用实时 WebSocket 接口**，
+> 用更简单的"录音文件识别"即可。上面 §1.5 / §2.3 提到的实时接口约束
+> （每 40ms 发 1280 字节之类）在这里都不用管了。
 
 然后在 `config.toml` 里改一行：
 
