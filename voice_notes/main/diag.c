@@ -1,20 +1,11 @@
 /*
- * 阶段 1 验证固件：ICS-43434 接线与 I²S 配置
+ * 诊断命令集 —— 从阶段 1 的 mic_test.c 演化而来。
  *
- * 目的：在写任何产品代码之前，先证明"麦克风能出合理的数据"。
- *       这是 docs/prd.md 里标记为全局最高风险的一步 —— 64 SCK 帧长、
- *       MSB 延迟 1 拍、24bit 在 32bit 槽里的对齐，任何一个错都会表现为
- *       "能收音但听不清"，极难反推。
+ * ⚠️ **这些命令不能删。** 阶段 1 的排查几乎全靠它们（`raw` 定位比特对齐、
+ *    `level` 验证麦克风响应、`rec` 的双声道判读区分"没数据"和"选错声道"）。
+ *    删掉等于把下次排查的工具扔掉。
  *
- * 命令：
- *   level [秒]  实时电平表 —— 验证麦克风最直接的手段（边说话边看数字）
- *   rec [秒]    采集并打印统计量（对应 hardware.md §4 第 2 级验证）
- *   wav [秒]    裸流输出 16bit PCM，PC 侧存 WAV（对应第 3 级验证）
- *   shift [n]   改 24→16bit 的右移位数，默认 16（风险 R2 的诊断入口）
- *   cfg         重看当前配置
- *   help        帮助
- *
- * 配置依据：docs/prd.md §6.4
+ * 由 app_main.c 通过 diag_handle_command() 调用。
  */
 
 #include <stdio.h>
@@ -24,51 +15,14 @@
 #include <inttypes.h>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "driver/i2s_std.h"
 #include "driver/uart.h"
-#include "driver/uart_vfs.h"
-#include "driver/gpio.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "esp_idf_version.h"
 #include "i2s_mic.h"
 
 /* console 与裸 PCM 共用 UART0；裸流走 uart_write_bytes 绕过 stdio 的 \n→\r\n 转换 */
 #define CONSOLE_UART    UART_NUM_0
-
-/* ------------------------------------------------------------------ */
-/* 把 console 切到阻塞读                                                */
-/*                                                                     */
-/* ⚠️ 这段是必须的，不是可选的。                                                     */
-/*                                                                     */
-/* 踩过的坑：最初我认为"本固件只有几个命令，非阻塞够用"就没做这层改造，  */
-/* 结果用户根本敲不进命令 —— console 默认非阻塞，stdin 不按行缓冲，      */
-/* 敲进去的每个字符会被切碎、逐个当指令。症状有两个，都很显眼：          */
-/*   1) 提示符疯狂刷屏（`mic> mic> mic> mic> ...`）—— 主循环在空转        */
-/*   2) "每一个输入都被当作指令"                                        */
-/*                                                                     */
-/* 本项目的 CLAUDE.md 明确写了这条（"不要自己发明"），我跳过了。         */
-/* 这段照 IDF 官方示例写，不要改。                                       */
-/* ------------------------------------------------------------------ */
-static void console_enable_blocking_read(void)
-{
-    const uart_port_t port = (uart_port_t)CONFIG_ESP_CONSOLE_UART_NUM;
-
-    /* 关掉 stdio 缓冲，否则要按好几次回车才有反应 */
-    setvbuf(stdin, NULL, _IONBF, 0);
-
-    esp_err_t err = uart_driver_install(port, 256, 0, 0, NULL, 0);
-    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
-        printf("!! UART 驱动安装失败 (%s)，将退回非阻塞模式\n", esp_err_to_name(err));
-        return;
-    }
-
-    uart_vfs_dev_use_driver(port);
-    /* 串口终端习惯：把收到的 \r 当行结束，输出 \n 时自动补 \r */
-    uart_vfs_dev_port_set_rx_line_endings(port, ESP_LINE_ENDINGS_CR);
-    uart_vfs_dev_port_set_tx_line_endings(port, ESP_LINE_ENDINGS_CRLF);
-}
 
 /* ------------------------------------------------------------------ */
 /* 单声道统计                                                          */
@@ -329,7 +283,7 @@ static void cmd_level(int seconds)
 }
 
 /* ------------------------------------------------------------------ */
-static void print_cfg(void)
+void diag_print_cfg(void)
 {
     printf("\n================ 当前配置 ================\n");
     printf("采样率     : %d Hz\n", I2S_MIC_SAMPLE_RATE);
@@ -352,7 +306,7 @@ static void print_cfg(void)
     fflush(stdout);
 }
 
-static void print_help(void)
+void diag_print_help(void)
 {
     printf("\n命令:\n");
     printf("  level [秒]  实时电平表, 边说话边看   (默认 10 秒)  ← 验证麦克风先试这个\n");
@@ -368,71 +322,48 @@ static void print_help(void)
 }
 
 /* ------------------------------------------------------------------ */
-void app_main(void)
+void diag_handle_command(const char *line)
 {
-    /* 必须最先做 —— 否则 stdin 不按行缓冲，命令根本敲不进去 */
-    console_enable_blocking_read();
+    if (line == NULL || line[0] == '\0') return;
 
-    printf("\n\n=== voice_notes 阶段 1：ICS-43434 采音验证 ===\n");
-    printf("IDF %s | ESP32-PICO-V3-02\n", esp_get_idf_version());
+    int arg = 0;
+    char cmd[32] = {0};
+    sscanf(line, "%31s %d", cmd, &arg);
 
-    i2s_mic_init();
-    print_cfg();
-    print_help();
-
-    static char line[128];
-    while (1) {
-        printf("mic> ");
-        fflush(stdout);
-
-        if (fgets(line, sizeof(line), stdin) == NULL) {
-            /* 正常情况下不会走到这里（已切阻塞读）。留着是防御：
-             * 万一 uart_driver_install 失败退回非阻塞，也不会把 CPU 跑满 */
-            vTaskDelay(pdMS_TO_TICKS(20));
-            continue;
-        }
-        line[strcspn(line, "\r\n")] = '\0';
-        if (line[0] == '\0') continue;
-
-        int arg = 0;
-        char cmd[32] = {0};
-        sscanf(line, "%31s %d", cmd, &arg);
-
-        if (strcmp(cmd, "raw") == 0) {
-            cmd_raw(arg > 0 ? arg : 16);
-        } else if (strcmp(cmd, "level") == 0) {
-            cmd_level(arg > 0 ? arg : 10);
-        } else if (strcmp(cmd, "rec") == 0) {
-            cmd_rec(arg > 0 ? arg : 3);
-        } else if (strcmp(cmd, "wav") == 0) {
-            cmd_wav(arg > 0 ? arg : 5);
-        } else if (strcmp(cmd, "shift") == 0) {
-            if (arg >= 0 && arg <= 31) {
-                i2s_mic_set_shift(arg);
-                printf("右移位数 → %d\n", i2s_mic_get_shift());
-            } else {
-                printf("shift 取值范围 0..31\n");
-            }
-            fflush(stdout);
-        } else if (strcmp(cmd, "chan") == 0) {
-            if (arg == 0 || arg == 1) {
-                i2s_mic_set_chan(arg);
-                printf("取用声道 → %s声道\n", i2s_mic_get_chan() ? "右" : "左");
-            } else {
-                printf("chan 只能取 0(左) 或 1(右)\n");
-            }
-            fflush(stdout);
-        } else if (strcmp(cmd, "dc") == 0) {
-            i2s_mic_set_dc_block(arg != 0);
-            printf("直流阻断 → %s\n", i2s_mic_get_dc_block() ? "开" : "关");
-            fflush(stdout);
-        } else if (strcmp(cmd, "cfg") == 0) {
-            print_cfg();
-        } else if (strcmp(cmd, "help") == 0) {
-            print_help();
+    if (strcmp(cmd, "raw") == 0) {
+        cmd_raw(arg > 0 ? arg : 16);
+    } else if (strcmp(cmd, "level") == 0) {
+        cmd_level(arg > 0 ? arg : 10);
+    } else if (strcmp(cmd, "rec") == 0) {
+        cmd_rec(arg > 0 ? arg : 3);
+    } else if (strcmp(cmd, "wav") == 0) {
+        cmd_wav(arg > 0 ? arg : 5);
+    } else if (strcmp(cmd, "shift") == 0) {
+        if (arg >= 0 && arg <= 31) {
+            i2s_mic_set_shift(arg);
+            printf("右移位数 → %d\n", i2s_mic_get_shift());
         } else {
-            printf("未知命令: %s（敲 help 看用法）\n", cmd);
-            fflush(stdout);
+            printf("shift 取值范围 0..31\n");
         }
+        fflush(stdout);
+    } else if (strcmp(cmd, "chan") == 0) {
+        if (arg == 0 || arg == 1) {
+            i2s_mic_set_chan(arg);
+            printf("取用声道 → %s声道\n", i2s_mic_get_chan() ? "右" : "左");
+        } else {
+            printf("chan 只能取 0(左) 或 1(右)\n");
+        }
+        fflush(stdout);
+    } else if (strcmp(cmd, "dc") == 0) {
+        i2s_mic_set_dc_block(arg != 0);
+        printf("直流阻断 → %s\n", i2s_mic_get_dc_block() ? "开" : "关");
+        fflush(stdout);
+    } else if (strcmp(cmd, "cfg") == 0) {
+        diag_print_cfg();
+    } else if (strcmp(cmd, "help") == 0) {
+        diag_print_help();
+    } else {
+        printf("未知命令: %s（敲 help 看用法）\n", cmd);
+        fflush(stdout);
     }
 }
