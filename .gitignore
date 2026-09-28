@@ -29,3 +29,8 @@ config.local.toml
 # ─── 会话录音 ───
 # WAV 是二进制且体积大；sessions/*.json（转写文本）会正常入库
 voice_notes/PC/sessions/*.wav
+voice_notes/PC/*.wav
+
+# ─── Python 工具产物 ───
+.pytest_cache/
+*.egg-info/
