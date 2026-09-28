@@ -29,6 +29,9 @@ class SerialSource(AudioSource):
         self._ser: Optional[serial.Serial] = None
         self._parser = FrameParser()
         self._last_seq: Optional[int] = None
+        # 已解析但尚未交付的帧。见 read_audio 里的说明 —— 少了这个队列
+        # 会丢掉一次串口 read 里除第一帧以外的全部数据（实测丢了 70%）。
+        self._pending: list = []
         self.frames = 0
         self.lost = 0
         self.bad_crc = 0
@@ -40,6 +43,7 @@ class SerialSource(AudioSource):
         self._ser.setDTR(False)
         self._ser.setRTS(False)
         self._parser.reset()
+        self._pending.clear()
         self._last_seq = None
         self.frames = 0
         self.lost = 0
@@ -75,29 +79,64 @@ class SerialSource(AudioSource):
         self._ser.write(pack_frame(TYPE_CONTROL, cmd.encode("ascii")))
 
     def read_audio(self, timeout: float = 1.0) -> Optional[AudioFrame]:
+        """读一帧音频。
+
+        ⚠️ **必须用队列把一次 read 里解析出的所有帧都留住。**
+        实测踩过的 bug：原实现解析出一个 chunk 里的全部帧，却只
+        `return` 第一帧，其余全部被丢弃。一次 4096 字节的 read 含 7~8 帧，
+        于是 60 秒录音只收到 18 秒（丢 70%），而 bad_crc=0、固件侧
+        deficit=9 —— 数据本身完全正常，纯粹是在这里被扔了。
+        """
         deadline = time.time() + timeout
-        while time.time() < deadline:
+        while True:
+            # 先交付已解析但还没给出的帧
+            if self._pending:
+                fr = self._pending.pop(0)
+                self._track(fr.seq)
+                return fr
+
+            if time.time() >= deadline:
+                break
+
             chunk = self._ser.read(4096)
-            if chunk:
-                for ftype, payload in self._parser.feed(chunk):
-                    if ftype == TYPE_AUDIO:
-                        seq, ts, pcm = unpack_audio(payload)
-                        self._track(seq)
-                        return AudioFrame(seq, ts, pcm)
-                    if ftype == TYPE_STATUS:
-                        self.last_status = payload.decode("utf-8", "replace")
+            if not chunk:
+                continue
+
+            for ftype, payload in self._parser.feed(chunk):
+                if ftype == TYPE_AUDIO:
+                    seq, ts, pcm = unpack_audio(payload)
+                    self._pending.append(AudioFrame(seq, ts, pcm))
+                elif ftype == TYPE_STATUS:
+                    self.last_status = payload.decode("utf-8", "replace")
+
         self.bad_crc = self._parser.bad_crc_count
         return None
 
     def drain(self, seconds: float) -> None:
-        """读掉 seconds 秒内到达的所有数据但不返回（用于停止后排空）"""
+        """读掉 seconds 秒内到达的数据（用于停止后排空，收集状态帧）。
+
+        音频帧计入统计（保持丢帧计数准确），但不保留 PCM —— 此时已经
+        发过 STOP，这些是尾帧，不再需要写入 WAV。
+        ⚠️ **必须先把 _pending 里剩下的帧计入统计**，否则它们与 drain 期间
+        收到的帧之间会出现假的 seq 缺口，把"没写完"误报成"丢帧"。
+        实测踩过：60 秒验收报 lost=2 但 bad_crc=0 —— 真丢字节的话必然
+        拼出半帧、CRC 校验失败。那 2 帧其实一直躺在 _pending 里。
+        """
+        while self._pending:
+            self._track(self._pending.pop(0).seq)
+
         deadline = time.time() + seconds
         while time.time() < deadline:
             chunk = self._ser.read(4096)
-            if chunk:
-                for ftype, payload in self._parser.feed(chunk):
-                    if ftype == TYPE_STATUS:
-                        self.last_status = payload.decode("utf-8", "replace")
+            if not chunk:
+                continue
+            for ftype, payload in self._parser.feed(chunk):
+                if ftype == TYPE_AUDIO:
+                    seq, _, _ = unpack_audio(payload)
+                    self._track(seq)
+                elif ftype == TYPE_STATUS:
+                    self.last_status = payload.decode("utf-8", "replace")
+        self.bad_crc = self._parser.bad_crc_count
 
     # ---------------------------------------------------------------- #
     def _track(self, seq: int) -> None:
