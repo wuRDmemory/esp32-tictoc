@@ -9,7 +9,27 @@ ESP32 裸机项目（ESP-IDF v5.5.5），跑在一块 **ESP32-PICO-V3-02** 开�
 | 目录 | 是什么 | 状态 |
 |---|---|---|
 | `hello_world/` | 板子验证工程 + `test_board.py` | ✅ 已完成 |
-| `voice_notes/` | **语音速记工具**（STT）：ICS-43434 采音 → PC 本地**整段**转写 → ollama 总结 | 🟡 阶段 1（采音）✅ 通过，阶段 2（串口流）未开始 |
+| `voice_notes/` | **语音速记工具**（STT）：ICS-43434 采音 → PC 本地**整段**转写 → ollama 总结 | 🟢 阶段 1（采音）✅ · 阶段 2（串口流）✅ · 阶段 3（转写）未开始 |
+
+### voice_notes 的固件结构（阶段 2 起）
+
+```
+main/
+├── app_main.c       主循环：非录音时收命令，录音时采音+发帧+轮询 STOP
+├── session.c/h      IDLE/RECORDING 状态机 + deficit 统计
+├── i2s_mic.c/h      I²S 采音（阶段 1 已验证的配置，不要改）
+├── audio_frame.c/h  帧编解码（纯 C，可在 PC 上用 gcc 单测）
+├── transport.c/h    UART 帧收发 + TX 阻塞时长统计
+└── diag.c/h         诊断命令（level/raw/rec/shift/chan/dc）—— 不要删
+```
+
+**两条容易搞错的认知**（详见 `stage2-results.md`）：
+
+1. **`deficit` 比 `seq` 更本质。** `seq` 由固件生成，序号连续只说明"发出的帧
+   都到了"，**不能说明 I²S 没漏采样本** —— 漏采的样本根本不会变成帧。
+2. **`lost>0` 但 `bad_crc=0` 是自相矛盾的组合**，出现它先怀疑自己的度量而不是
+   链路：真丢字节必然拼出半帧、CRC 校验失败。（这个组合我们真踩过，
+   查了半天发现是 drain 的统计顺序问题，数据压根没丢。）
 
 > ⚠️ **别把流式转写做回来。** 2026-09-27 用户明确取消了流式（`prd.md` D12）：
 > 录音期间只显示「聆听中 + 计时 + 电平条」，**不转写、不渲染文字**；
@@ -47,7 +67,9 @@ ESP32 裸机项目（ESP-IDF v5.5.5），跑在一块 **ESP32-PICO-V3-02** 开�
 |---|---|
 | `hello_world/docs/prd.md` | 产品需求文档：架构、I²S 配置推导、风险登记册、用户待办 |
 | `hello_world/docs/decisions.md` | 14 条决策及依据 —— **改需求前先看这个**，避免重复讨论 |
-| `hello_world/docs/hardware.md` | 接线、零件、逐级上电验证 |
+| `hello_world/docs/hardware.md` | 接线、零件、逐级上电验证、**阶段 1 验收记录（§7）** |
+| `hello_world/docs/stage2-results.md` | **阶段 2 验收记录**：实测数据、发现的两个 bug、关键认知 |
+| `hello_world/docs/plans/` | 各阶段的实现计划 |
 | `hello_world/docs/cloud-asr.md` | 云 ASR 申请指引（当前走本地，不用） |
 | `hello_world/docs/modules/` | ICS-43434 数据手册（PDF + 可 grep 的 txt） |
 
