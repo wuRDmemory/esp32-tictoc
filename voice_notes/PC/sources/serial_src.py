@@ -36,6 +36,9 @@ class SerialSource(AudioSource):
         self.lost = 0
         self.bad_crc = 0
         self.last_status = ""
+        # 诊断用：本次会话中 OS 串口缓冲区积压的最大字节数。
+        # 持续增长 = PC 排空速度跟不上到达速度 → 迟早溢出丢字节。
+        self.max_in_waiting = 0
 
     # ---------------------------------------------------------------- #
     def open(self) -> None:
@@ -49,6 +52,7 @@ class SerialSource(AudioSource):
         self.lost = 0
         self.bad_crc = 0
         self.last_status = ""
+        self.max_in_waiting = 0
 
     def close(self) -> None:
         if self._ser:
@@ -98,7 +102,23 @@ class SerialSource(AudioSource):
             if time.time() >= deadline:
                 break
 
-            chunk = self._ser.read(4096)
+            # ⚠️ **拿到多少读多少，不要等填满。**
+            #
+            # 实测踩过：原来写的是 `read(4096)`，而 pyserial 的 read(size)
+            # 会阻塞到收满 size 字节或超时。在 timeout=0.05 下每次固定阻塞
+            # 50ms、只拿到 1622 字节 = 3.08 帧 → 吞吐 61.6 帧/秒，
+            # 而到达速率也是 61.6 帧/秒 —— **恰好 100% 利用率，零余量**。
+            #
+            # 零余量意味着任何抖动（Python GC、OS 调度、USB 延迟累积）都会
+            # 让 OS 串口缓冲多积一点，600 秒后溢出、丢掉整段字节。
+            # 症状：60 秒验收 bad_crc=0，600 秒验收 bad_crc=31。
+            #
+            # 改成"读走当前可用的全部"后，循环速度由到达速率决定，
+            # 缓冲长期贴近 0，余量充足。
+            waiting = self._ser.in_waiting
+            if waiting > self.max_in_waiting:
+                self.max_in_waiting = waiting
+            chunk = self._ser.read(waiting) if waiting > 0 else self._ser.read(1)
             if not chunk:
                 continue
 
@@ -127,7 +147,9 @@ class SerialSource(AudioSource):
 
         deadline = time.time() + seconds
         while time.time() < deadline:
-            chunk = self._ser.read(4096)
+            # 同 read_audio：拿到多少读多少，不要等填满
+            waiting = self._ser.in_waiting
+            chunk = self._ser.read(waiting) if waiting > 0 else self._ser.read(1)
             if not chunk:
                 continue
             for ftype, payload in self._parser.feed(chunk):
@@ -158,4 +180,5 @@ class SerialSource(AudioSource):
             "lost": self.lost,
             "bad_crc": self._parser.bad_crc_count,
             "last_status": self.last_status,
+            "max_in_waiting": self.max_in_waiting,
         }

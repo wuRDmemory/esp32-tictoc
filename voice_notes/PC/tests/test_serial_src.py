@@ -25,6 +25,7 @@ def _bare_source() -> SerialSource:
     src.lost = 0
     src.bad_crc = 0
     src.last_status = ""
+    src.max_in_waiting = 0
     return src
 
 
@@ -33,6 +34,11 @@ class FakeSerial:
 
     def __init__(self, chunks):
         self._chunks = list(chunks)
+
+    @property
+    def in_waiting(self):
+        """模拟 OS 缓冲区里当前可读的字节数 —— 下一个待吐出的块的长度"""
+        return len(self._chunks[0]) if self._chunks else 0
 
     def read(self, _n):
         return self._chunks.pop(0) if self._chunks else b""
@@ -169,5 +175,5 @@ def test_stats_shape():
     src = _bare_source()
     src._track(0)
     st = src.stats()
-    assert set(st) == {"frames", "lost", "bad_crc", "last_status"}
+    assert set(st) == {"frames", "lost", "bad_crc", "last_status", "max_in_waiting"}
     assert st["frames"] == 1

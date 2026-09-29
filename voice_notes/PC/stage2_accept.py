@@ -97,6 +97,10 @@ def main() -> int:
         ("无 CRC 错误", st["bad_crc"] == 0, f"bad_crc={st['bad_crc']}"),
         ("TX 阻塞轻微（<64ms）", tx_block is not None and tx_block < 64,
          f"tx_block_ms={tx_block}"),
+        # PC 侧排空能力。持续增长 = 排空速度跟不上到达速度 → 迟早溢出丢字节。
+        # 这一项是给长时验收用的：60 秒看不出来，600 秒能。
+        ("串口缓冲无积压（<8KB）", st["max_in_waiting"] < 8192,
+         f"max_in_waiting={st['max_in_waiting']}"),
     ]
 
     print()
