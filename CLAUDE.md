@@ -84,6 +84,7 @@ PC 侧排空能力（看 `max_in_waiting`）、以及帧协议本身。
 | `hello_world/docs/decisions.md` | 14 条决策及依据 —— **改需求前先看这个**，避免重复讨论 |
 | `hello_world/docs/hardware.md` | 接线、零件、逐级上电验证、**阶段 1 验收记录（§7）** |
 | `hello_world/docs/stage2-results.md` | **阶段 2 验收记录**：实测数据、发现的两个 bug、关键认知 |
+| `hello_world/docs/wakeword-research.md` | **唤醒/聆听结束调研**：xiaozhi 的做法、为什么我们芯片用不了、唯一值得借鉴的点 |
 | `hello_world/docs/plans/` | 各阶段的实现计划 |
 | `hello_world/docs/cloud-asr.md` | 云 ASR 申请指引（当前走本地，不用） |
 | `hello_world/docs/modules/` | ICS-43434 数据手册（PDF + 可 grep 的 txt） |
