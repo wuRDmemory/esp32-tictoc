@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 这个仓库是什么
 
-ESP32 裸机项目（ESP-IDF v5.5.5），跑在一块 **ESP32-PICO-V3-02** 开发板上。
+ESP32 裸机项目（ESP-IDF v5.5.5），**双板支持**：
+**ESP32-PICO-V3-02**（经典 ESP32，调试用）+ **ESP32-S3-CAM N16R8**（目标板）。
+切换只需 `idf.py set-target`，板级差异全部集中在 `voice_notes/main/board.h`。
 
 | 目录 | 是什么 | 状态 |
 |---|---|---|
@@ -82,6 +84,21 @@ PC 侧排空能力（看 `max_in_waiting`）、以及帧协议本身。
 > 对 LLM 总结质量影响很大。**所以 PRD 里凡看到"流式"字样，都是 v1.0 的遗留
 > 或对它的说明，不是当前设计。** 动手前先看 `prd.md` 头部的变更记录。
 
+> ⚠️ **判停要做在板端（D13），别在 PC 侧继续加深逻辑。**
+> 2026-10-04 用户要求参考 xiaozhi：「**完全参考 xiaozhiAI 就行，他的反应挺快的**」。
+> xiaozhi 的"快"来自 **板端 AFE VAD 判停**，而现状是 PC 侧 RMS **静音 5 秒**才停 ——
+> 用户说完要干等 5 秒，是整条链路上**最大的一段纯浪费**。
+>
+> ⚠️ **只抄判停，不抄识别。** xiaozhi 另一半的"快"来自云端**流式 ASR**，
+> 那条会**丢掉标点**，与 D12 直接冲突。见 `decisions.md` D13 / D13.1。
+>
+> ⚠️ **AFE/VAD 只有 S3 有**（经典 ESP32 没有）→ PICO 上继续走 PC 侧 RMS，
+> 由 `board.h` 的 **`BOARD_HAS_ESPSR`** 决定走哪条实现。
+>
+> ⚠️ **边界（重要）**：板端**只判断"有没有人在说 / 说完了没"，不识别"说了什么"**。
+> 这是 `prd.md` §1.3「板端语音识别」放宽后的**新边界** ——
+> **越过它就是在 MCU 上做 ASR，那是 D3 明确排除的方向。**
+
 ### voice_notes 已验收的固件配置（阶段 1，实测通过）
 
 `mic_test.c` 里的 I²S 配置**已验证可用，改之前先看 `hardware.md` §7**。
@@ -112,7 +129,7 @@ PC 侧排空能力（看 `max_in_waiting`）、以及帧协议本身。
 | `hello_world/docs/decisions.md` | 14 条决策及依据 —— **改需求前先看这个**，避免重复讨论 |
 | `hello_world/docs/hardware.md` | 接线、零件、逐级上电验证、**阶段 1 验收记录（§7）** |
 | `hello_world/docs/stage2-results.md` | **阶段 2 验收记录**：实测数据、发现的两个 bug、关键认知 |
-| `hello_world/docs/wakeword-research.md` | **唤醒/聆听结束调研**：xiaozhi 的做法、为什么我们芯片用不了、唯一值得借鉴的点 |
+| `hello_world/docs/wakeword-research.md` | **唤醒/聆听结束调研**：xiaozhi 的做法。⚠️ **结论已因换 S3 反转**（原文说"不可用"是针对经典 ESP32），顶部有注记 |
 | `hello_world/docs/s3-bringup.md` | **S3 首次上板记录**：实测参数、4 个移植坑、工作流发现 |
 | `hello_world/docs/plans/` | 各阶段的实现计划 |
 | `hello_world/docs/cloud-asr.md` | 云 ASR 申请指引（当前走本地，不用） |
