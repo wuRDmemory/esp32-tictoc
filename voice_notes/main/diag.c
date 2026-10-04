@@ -299,8 +299,9 @@ static void cmd_vad(int seconds)
          * 与事实不符的话，把"还没接入"误导成"这块板做不到"。 */
         printf("\n>>> 板端判停当前不可用（AFE 实现：%s）\n", afe_name());
 #if BOARD_HAS_ESPSR
-        printf("    本板是 S3，**具备 AFE 能力**，但尚未接入 ESP-SR\n");
-        printf("    → 见 main/afe_espsr.c 顶部说明\n");
+        printf("    本板是 S3，**具备 AFE 能力**，但 **AFE 初始化失败**\n");
+        printf("    → 往上翻 esp_afe_espsr 的日志（afe_config_print 会打出真实生效值）\n");
+        printf("    → 常见原因：input_format=\"M\" 不被接受 / PSRAM 没开 / 内存不足\n");
 #else
         printf("    本板是经典 ESP32，**硬件不支持 AFE**（docs/wakeword-research.md §2）\n");
         printf("    → 这是能力差异，不是故障。换 S3 再跑本命令\n");
