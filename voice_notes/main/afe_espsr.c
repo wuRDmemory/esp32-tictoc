@@ -58,16 +58,47 @@ static const char *TAG = "afe_espsr";
 
 /* VAD 模式：0=Normal … 4=Very Very Very Aggressive。
  *
- * ⚠️ **两处参考值不一致，不要凭直觉调，必须用 `vad` 命令实测**：
- *    - 官方 voice_activity_detection 例子用 VAD_MODE_1
- *    - xiaozhi 用 VAD_MODE_3（docs/wakeword-research.md §1.3）
- *    - ⚠️ "aggressive" 在 WebRTC VAD 的语义里是**"更激进地滤除非语音"**，
- *      即**更容易判成静音** —— 若是这个语义，VAD_MODE_3 反而更容易切断句子。
- *      **方向未确认**，所以先用官方例子的值。 */
-#define AFE_VAD_MODE           VAD_MODE_1
+ * ⚠️ **实测结论（2026-10-04）：WebRTC VAD 在本硬件上误报严重。**
+ *    安静时底噪约 -55 dBFS，VAD 反复报 `speech`（平均电平 -55.5 dBFS
+ *    —— 就是底噪，不是人声）。后果不是"不停"而是**乱停**：
+ *    噪声下 speech/silence 反复跳，SPEECH_END 会在随机时刻触发。
+ *
+ *    已验证**不是**能量门限的问题：把 `vad_energy_threshold` 设到 -40
+ *    （远高于底噪）后，-57 dBFS 的底噪**照样**报 speech
+ *    → 证实该参数在 WebRTC VAD 下不生效（与头文件
+ *      "only applied when a vad model is used" 一致）。
+ *
+ * ⚠️ "aggressive" 的语义：WebRTC VAD 文档里指**"更激进地滤除非语音"**，
+ *    即更容易判成静音 → 应能压住底噪误报。**但方向以实测为准** ——
+ *    若调大后误报反而增多，说明语义相反，退回 1。
+ *
+ * ✅ **VAD_MODE_3 解决了底噪误报**（2026-10-04 实测）：
+ *      安静 38 秒 → **0 次** speech（mode 1 时是 5+ 次 / 40 秒）
+ *      说话时   → 正常报 speech，电平 -43 ~ -48 dBFS
+ *    **两个方向都对**：既没被底噪骗，也没把轻柔说话滤掉。
+ *
+ * ⚠️ **残余（已知，暂不处理）**：环境里有**真实声音**时（关门、掉落物等，
+ *    -26 dBFS 量级）它仍会报 speech —— 但那是 VAD **该有的行为**
+ *    （宁可多报不可漏报），不是误报。若实际使用中发现嘈杂环境判停不稳，
+ *    再上 **VadNet**（Task 4，要改分区表）。 */
+#define AFE_VAD_MODE           VAD_MODE_3
 
 /* 语音要持续这么久才翻到 SPEECH。官方默认 128，库内有警告说超过 512 会引入无谓延迟 */
 #define AFE_VAD_MIN_SPEECH_MS  128
+
+/* 报 speech 所需的**最低平均帧能量**（dBFS），默认 -60。
+ *
+ * ⚠️⚠️ **实测确认：本参数在当前配置下【不生效】。**
+ *    判别实验：设到 -40（远高于 -55 的底噪）后，-57 dBFS 的底噪**照样**报 speech。
+ *    回读 `get_vad_energy_threshold()` 返回 1.0（超出合法范围 -100~0）——
+ *    佐证它没有被真正应用。
+ *
+ *    原因与头文件那句 `It is only applied when a vad model is used` 一致：
+ *    我们传 `models=NULL` → 用的是**内置 WebRTC VAD（无模型）**。
+ *
+ * → **留着这个设置是为了将来上 VadNet（Task 4）**，那时它才会生效。
+ *    现在设它没有任何效果，别误以为"调了门限就好了"。 */
+#define AFE_VAD_ENERGY_THRESHOLD  (-40.0f)
 
 /* 每通道样本数上限：32ms@16k = 512，留一倍余量给将来的帧长变化 */
 #define AFE_MAX_CHUNK   1024
@@ -206,10 +237,11 @@ esp_err_t afe_init(void)
     cfg->wakenet_init = false;
     cfg->agc_init     = false;
 
-    cfg->vad_init          = true;
-    cfg->vad_mode          = AFE_VAD_MODE;
-    cfg->vad_min_noise_ms  = AFE_VAD_MIN_NOISE_MS;
-    cfg->vad_min_speech_ms = AFE_VAD_MIN_SPEECH_MS;
+    cfg->vad_init             = true;
+    cfg->vad_mode             = AFE_VAD_MODE;
+    cfg->vad_min_noise_ms     = AFE_VAD_MIN_NOISE_MS;
+    cfg->vad_min_speech_ms    = AFE_VAD_MIN_SPEECH_MS;
+    cfg->vad_energy_threshold = AFE_VAD_ENERGY_THRESHOLD;
     /* memory_alloc_mode 不显式设 —— 让库按 Kconfig/默认决定。
      * S3 上 8MB PSRAM 充裕，internal RAM 更宝贵。 */
 
@@ -239,6 +271,15 @@ esp_err_t afe_init(void)
     s_nch   = s_afe->get_feed_channel_num(s_data);
     ESP_LOGI(TAG, "feed: 每通道 %d 样本 × %d 通道（本层每次攒 %d 个单声道样本）",
              s_chunk, s_nch, s_chunk);
+
+    /* ⚠️ 回读能量门限 —— 这是判别"该参数是否生效"的**唯一可靠办法**。
+     * 头文件说它只在用了 vad model 时适用，而我们没传模型；
+     * 回读若仍是默认 -60，就说明设置被忽略、必须上 VadNet。 */
+    ESP_LOGI(TAG, "vad_energy_threshold: 设 %.1f → 回读 %.1f dBFS %s",
+             (double)AFE_VAD_ENERGY_THRESHOLD,
+             (double)s_afe->get_vad_energy_threshold(s_data),
+             (s_afe->get_vad_energy_threshold(s_data) < -55.0f)
+                 ? "← ⚠️ 仍是默认值，设置被忽略" : "← 已生效");
 
     if (s_chunk <= 0 || s_nch <= 0 || s_nch > AFE_MAX_NCH || s_chunk > AFE_MAX_CHUNK) {
         ESP_LOGE(TAG, "帧长/通道数超出本层缓冲（chunk≤%d, nch≤%d）—— 请调大 AFE_MAX_*",

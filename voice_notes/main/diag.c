@@ -326,6 +326,12 @@ static void cmd_vad(int seconds)
     const int64_t t0 = esp_timer_get_time();
     const char *last = NULL;
     int n_end = 0;
+    double n_speech_dbfs_sum = 0.0;   /* speech 期间的平均电平，供结论区判读 */
+    int    n_speech_blocks = 0;
+
+    /* 平方的指数平均，时间常数约 128ms（8 块 × 16ms）。
+     * 用滑动值而不是单块值 —— 单块抖动太大，看不出"这一刻环境有多响"。 */
+    double ema_msq = 0.0;
 
     for (int b = 0; b < blocks; b++) {
         const int n = i2s_mic_read(buf, I2S_MIC_FRAMES_PER_READ);
@@ -333,13 +339,30 @@ static void cmd_vad(int seconds)
 
         afe_feed(buf, n);
 
+        int64_t sq = 0;
+        for (int i = 0; i < n; i++) sq += (int64_t)buf[i] * buf[i];
+        const double msq = (n > 0) ? (double)sq / n : 0.0;
+        ema_msq = (ema_msq == 0.0) ? msq : (ema_msq * 0.875 + msq * 0.125);
+
         /* 先取事件再取状态：事件是消费性的，取走即清除 */
         const afe_event_t ev = afe_poll_event();
         const char *cur = afe_vad_state_str();
         const bool changed = (last == NULL) || (strcmp(cur, last) != 0);
 
+        /* ⚠️ 电平是**判读误报的关键**：VAD 报 speech 时若电平只有底噪水平
+         *    （实测本模块约 -60 dBFS），那就是能量门限撞上底噪，
+         *    而不是真的有人说话 —— 两者修法完全不同。 */
+        if (strcmp(cur, "speech") == 0 && ema_msq > 0.0) {
+            n_speech_dbfs_sum += 10.0 * log10(ema_msq / (32768.0 * 32768.0));
+            n_speech_blocks++;
+        }
+
         if (ev != AFE_EVENT_NONE || changed) {
-            printf("  t=%5.2fs  %-8s", (esp_timer_get_time() - t0) / 1e6, cur);
+            const double rms  = sqrt(ema_msq);
+            const double dbfs = rms > 0 ? 20.0 * log10(rms / 32768.0) : -99.0;
+
+            printf("  t=%5.2fs  %-8s [电平%7.1f dBFS]",
+                   (esp_timer_get_time() - t0) / 1e6, cur, dbfs);
             if (ev == AFE_EVENT_SPEECH_END) {
                 printf("  ★ SPEECH_END ← 判停");
                 n_end++;
@@ -353,13 +376,26 @@ static void cmd_vad(int seconds)
     }
 
     printf("\n================ VAD 标定结论 ================\n");
+
+    /* 电平是判读误报的关键 —— 放在最前面 */
+    if (n_speech_blocks > 0) {
+        printf("VAD 判为 speech 时的平均电平: %.1f dBFS\n",
+               n_speech_dbfs_sum / n_speech_blocks);
+        printf("  判读: 接近安静底噪（本模块约 -60 dBFS）= 【能量门限撞上底噪】\n");
+        printf("        → 调 vad_energy_threshold 即可，不必换 VAD 模型\n");
+        printf("        明显高于底噪 = 当时【确实有声音】，那是正常检测\n");
+    } else {
+        printf("全程没有出现 speech —— 见下方\n");
+    }
+
     if (n_end == 0) {
-        printf("全程没有触发判停 —— 要么一直在说话，要么门限偏高\n");
+        printf("\n全程没有触发判停 —— 要么一直在说话，要么门限偏高\n");
         printf("下一步: 安静几秒再试；仍不触发就要调 VAD 门限/模式\n");
     } else {
-        printf("触发判停 %d 次。请对照上面的时间戳，确认「停顿多久才判停」\n", n_end);
+        printf("\n触发判停 %d 次。请对照上面的时间戳，确认「停顿多久才判停」\n", n_end);
         printf("判读: 停顿 1 秒就被判停 = 门限太低（句子会被切断）\n");
         printf("      停顿 5 秒还没判停 = 门限太高（失去「快」的意义）\n");
+        printf("      但若【没说话也报 speech】，先看上面的平均电平\n");
     }
     printf("============================================\n\n");
     fflush(stdout);
