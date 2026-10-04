@@ -16,13 +16,11 @@
 
 #include "freertos/FreeRTOS.h"
 #include "driver/i2s_std.h"
-#include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "i2s_mic.h"
+#include "transport.h"
 
-/* console 与裸 PCM 共用 UART0；裸流走 uart_write_bytes 绕过 stdio 的 \n→\r\n 转换 */
-#define CONSOLE_UART    UART_NUM_0
 
 /* ------------------------------------------------------------------ */
 /* 单声道统计                                                          */
@@ -133,8 +131,13 @@ static void cmd_rec(int seconds)
         printf("      硬件修: 模块 PS 跳线焊盘选错（见 docs/modules/93545.pdf）\n");
     } else if (a_span == 0 && b_span == 0) {
         printf("❌ 两路恒为 0 —— 完全没收到数据\n");
-        printf("      依次查: 1) SD 是否接到 GPIO22  2) VDD 是否 3.3V\n");
-        printf("              3) 板子是否真在跑这个固件  4) SCK 是否接到 GPIO26\n");
+        /* ⚠️ 引脚号必须来自 board.h —— 写死会在换板后指错脚，
+         *    而这种"诊断信息本身是错的"最难发现（实测踩过） */
+        printf("      依次查: 1) 麦克风 SD 是否接到 GPIO%d\n", BOARD_I2S_DIN);
+        printf("              2) 麦克风 VDD 是否接 3V3（不是 5V！）且已上电\n");
+        printf("              3) SCK 是否接到 GPIO%d，WS 是否接到 GPIO%d\n",
+               BOARD_I2S_BCLK, BOARD_I2S_WS);
+        printf("              4) 板子是否真在跑这个固件（看板名：%s）\n", BOARD_NAME);
     } else if (a_span < 200) {
         printf("❌ 幅度极小（接近噪声底）\n");
         printf("      试: `shift 8`（位移方向错）或 `chan %d`（换一路）\n", i2s_mic_get_chan() ? 0 : 1);
@@ -160,20 +163,20 @@ static void cmd_wav(int seconds)
     int16_t buf[I2S_MIC_FRAMES_PER_READ];
 
     /* 绕过 stdio：直接写 UART，避免 \n → \r\n 转换污染二进制数据 */
-    uart_wait_tx_done(CONSOLE_UART, pdMS_TO_TICKS(1000));
+    transport_wait_tx_done();
     char hdr[64];
     int hlen = snprintf(hdr, sizeof(hdr), "WAV_BEGIN %d %d\n", total, I2S_MIC_SAMPLE_RATE);
-    uart_write_bytes(CONSOLE_UART, hdr, hlen);
-    uart_wait_tx_done(CONSOLE_UART, pdMS_TO_TICKS(1000));
+    transport_write_raw((const uint8_t *)hdr, (size_t)hlen);
+    transport_wait_tx_done();
 
     while (done < total) {
         int n = i2s_mic_read(buf, I2S_MIC_FRAMES_PER_READ);
         if (n < 0) break;
-        uart_write_bytes(CONSOLE_UART, (const char *)buf, n * 2);
+        transport_write_raw((const uint8_t *)buf, (size_t)n * 2);
         done += n;
     }
-    uart_wait_tx_done(CONSOLE_UART, pdMS_TO_TICKS(2000));
-    uart_write_bytes(CONSOLE_UART, "\nWAV_END\n", 9);
+    transport_wait_tx_done();
+    transport_write_raw((const uint8_t *)"\nWAV_END\n", 9);
 
     printf("已发送 %d 个样本（%d 字节 PCM）\n", done, done * 2);
     fflush(stdout);

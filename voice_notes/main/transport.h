@@ -39,6 +39,11 @@ int transport_poll(uint8_t *out_type, uint8_t *out_payload, int max_len, int tim
 
 void transport_get_stats(uint32_t *tx_frames, uint32_t *rx_frames, uint32_t *bad_crc);
 
+/* 裸字节写出（不经帧封装）。给 diag 的 `wav` 命令发裸 PCM 用 ——
+ * 它必须走与实际传输相同的通路，否则在 S3 上会写到 UART0（没接东西）。 */
+void transport_write_raw(const uint8_t *data, size_t len);
+void transport_wait_tx_done(void);
+
 /* 累计阻塞在 uart_write_bytes 上的毫秒数。
  * 一次 DMA 缓冲 = 16ms，4 个 = 64ms —— 累计超过约 64ms 就意味着 I²S 已丢数据。 */
 uint32_t transport_tx_blocked_ms(void);

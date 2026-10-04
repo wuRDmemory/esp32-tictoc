@@ -56,6 +56,11 @@
 /* console 走 UART0（经板载 CP2102N）。引脚和波特率在 sdkconfig.defaults.esp32 里 */
 #define BOARD_CONSOLE_KIND      "UART0 @ 921600 (CP2102N)"
 
+/* ⚠️ 功能性标志（CONSOLE_KIND 只是给人看的字符串，不参与编译）：
+ * 传输走哪条通路必须与 console 一致，否则会出现
+ * 「printf 能出、但收不到命令也发不出音频」—— 实测在 S3 上踩过。 */
+#define BOARD_TRANSPORT_USB     0
+
 /* ================================================================== */
 /* ESP32-S3-CAM（AI-Thinker 映射，N16R8）                              */
 /*                                                                    */
@@ -122,6 +127,9 @@
  *   - 下载模式与运行固件都是 303a:1001，PID 稳定 → 不用反复重绑
  *   - 烧录速度约 1337 kbit/s（CP2102N 只有 643） */
 #define BOARD_CONSOLE_KIND      "USB-Serial-JTAG (原生 USB)"
+
+/* console 与传输都走 USB-Serial-JTAG（同一外设，帧靠 magic 自定界） */
+#define BOARD_TRANSPORT_USB     1
 
 #else
 #error "未选择板子：idf.py menuconfig → Target board（默认值按 IDF target 自动选）"
