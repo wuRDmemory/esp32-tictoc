@@ -9,7 +9,7 @@ menu "voice_notes 板级配置"
     choice BOARD_SELECT
         prompt "Target board"
         default BOARD_PICO_V3_02   if IDF_TARGET_ESP32
-        default BOARD_S3_DEVKITC_1 if IDF_TARGET_ESP32S3
+        default BOARD_S3_CAM if IDF_TARGET_ESP32S3
         help
             选择目标开发板。两块板子的引脚、时钟源、PSRAM 模式、console 通路
             全都不同，且 GPIO22/25 在 S3 上物理不存在 —— 所以必须编译期选定，
@@ -19,14 +19,14 @@ menu "voice_notes 板级配置"
 
         config BOARD_PICO_V3_02
             bool "ESP32-PICO-V3-02 (经典 ESP32, 2MB PSRAM, CP2102N)"
-        config BOARD_S3_DEVKITC_1
-            bool "ESP32-S3-DevKitC-1 N16R8 (8MB PSRAM, 原生 USB)"
+        config BOARD_S3_CAM
+            bool "ESP32-S3-CAM N16R8 (8MB PSRAM, 原生 USB, 带摄像头)"
     endchoice
 
     config BOARD_SELECTED_NAME
         string
         default "ESP32-PICO-V3-02"  if BOARD_PICO_V3_02
-        default "ESP32-S3-DevKitC-1" if BOARD_S3_DEVKITC_1
+        default "ESP32-S3-CAM" if BOARD_S3_CAM
         help
             仅供显示。实际的板级参数在 board.h 里，不在这里。
 

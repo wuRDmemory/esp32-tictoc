@@ -6,7 +6,7 @@
 #
 #   本文件              → 通用
 #   sdkconfig.defaults.esp32    → ESP32-PICO-V3-02
-#   sdkconfig.defaults.esp32s3  → ESP32-S3-DevKitC-1
+#   sdkconfig.defaults.esp32s3  → ESP32-S3-CAM
 #
 # 板级差异（引脚、时钟源）不在这里，在 main/board.h。
 # ══════════════════════════════════════════════════════════════════

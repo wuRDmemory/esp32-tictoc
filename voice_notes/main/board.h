@@ -1,15 +1,14 @@
 /*
  * board.h —— 板级差异的**唯一出处**
  *
- * 为什么需要它：PICO-V3-02 和 S3-DevKitC-1 **没有一个参数是相同的** ——
+ * 为什么需要它：PICO-V3-02 和 S3-CAM **没有一个参数是相同的** ——
  * 引脚、时钟源、PSRAM 模式、console 通路全都不同。而且其中两条是**硬约束**：
  *
  *   - GPIO22/25 在 S3 上【物理不存在】（S3 只有 0–21、26–48）
  *   - I2S_CLK_SRC_APLL 在 S3 上【不存在】
  *
- * 所以"改几个数字让两边通用"是行不通的：给 S3 选的引脚
- * （5/6/7）在经典 ESP32 上会撞 SPI Flash（GPIO6–11），反之亦然。
- * 必须按板编译期选择。
+ * 所以"改几个数字让两边通用"是行不通的：CAM 板能用的引脚在经典 ESP32 上
+ * 会撞 SPI Flash（GPIO6–11），反之亦然。必须按板编译期选择。
  *
  * 选择方式：
  *     idf.py menuconfig  →  "Target board"
@@ -58,40 +57,62 @@
 #define BOARD_CONSOLE_KIND      "UART0 @ 921600 (CP2102N)"
 
 /* ================================================================== */
-/* ESP32-S3-DevKitC-1 (N16R8)                                          */
+/* ESP32-S3-CAM（AI-Thinker 映射，N16R8）                              */
 /*                                                                    */
 /* 2026-10-04 实测：Flash 16MB / PSRAM 8MB 八线 / 无 APLL / 原生 USB。  */
-/* 首次上板时踩的坑见 docs/s3-bringup.md。                              */
+/* 首次上板踩的坑见 docs/s3-bringup.md。                                */
+/*                                                                    */
+/* ⚠️ 曾误当作 ESP32-S3-DevKitC-1 处理 —— 型号是用户后来更正的。        */
+/*    CAM 板与 DevKitC 的关键差别：**摄像头吃掉十几个 GPIO**。          */
 /* ================================================================== */
-#elif defined(CONFIG_BOARD_S3_DEVKITC_1)
+#elif defined(CONFIG_BOARD_S3_CAM)
 
-#define BOARD_NAME              "ESP32-S3-DevKitC-1"
+#define BOARD_NAME              "ESP32-S3-CAM"
 #define BOARD_CHIP_FAMILY       "ESP32-S3 (LX7)"
 
-/* ⚠️ 引脚选取依据（以下全部规避，逐条都有实测或手册来源）：
- *     GPIO22/23/25  → S3 上【不存在】
- *     GPIO26–37     → 被八线 PSRAM/Flash 占用（SPIRAM_CS_IO 默认值就是 26）
- *     GPIO0/3/45/46 → strapping
- *     GPIO19/20     → 原生 USB（D−/D+）
- *     GPIO43/44     → UART0
- *     GPIO38(旧版48)→ 板载 RGB LED
- *   选 5/6/7：都在安全区 1–21 内，且互不冲突。
- *   ⚠️ 实际接线以用户的硬件为准 —— 改这里即可，别处不用动。 */
-#define BOARD_I2S_BCLK          5
-#define BOARD_I2S_WS            6
-#define BOARD_I2S_DIN           7
+/* ⚠️ 引脚选取 —— 这块板子能用的引脚非常少，逐条说明为什么：
+ *
+ *   摄像头占用（AI-Thinker 映射，丝印为 ESP32-S3-CAM 的板子实测匹配）：
+ *     D0=11 D1=9 D2=8 D3=10 D4=12 D5=18 D6=17 D7=16
+ *     XCLK=15 SIOD=4 SIOC=5 VSYNC=6 HREF=7 PCLK=13
+ *     → 即 4–13、15–18 全部被占
+ *
+ *   ❌ 绝对不能用摄像头引脚，不只是"被占用"那么简单：
+ *      - VSYNC(6) / HREF(7) 是【摄像头输出】—— 我们当 WS/BCLK 用时
+ *        两个器件同时驱动同一根线，信号打架且可能损伤引脚
+ *
+ *   ❌ 其他不可用：
+ *      GPIO 0/3/45/46  strapping
+ *      GPIO 19/20      原生 USB（D−/D+）
+ *      GPIO 26–37      Flash + 八线 PSRAM
+ *      GPIO 43/44      UART0
+ *      GPIO 38/39/40   SD 卡
+ *      GPIO 39–42      JTAG
+ *      GPIO 2/48       板载 LED
+ *
+ *   ✅ 最终选 14 / 21 / 47 —— 这是推算出的**仅有的三个干净引脚**
+ *      （已经用户确认都引到了排针上）。
+ *
+ *   ⚠️ 没有冗余：这三个任何一个被占用就得退到 41/42（失去 JTAG）
+ *      或 38/39/40（牺牲 SD 卡）。 */
+#define BOARD_I2S_BCLK          14
+#ifndef BOARD_I2S_WS
+#define BOARD_I2S_WS            21
+#endif
+#ifndef BOARD_I2S_DIN
+#define BOARD_I2S_DIN           47
+#endif
 
-/* S3 没有 APLL（soc/esp32s3/clk_tree_defs.h 里只有 PLL_F240M/PLL_F160M/XTAL）。
+/* S3 没有 APLL（soc/esp32s3/clk_tree_defs.h 只有 PLL_F240M/PLL_F160M/XTAL）。
  * I2S_CLK_SRC_DEFAULT = PLL_F160M，160MHz / 1.024MHz = 156.25，
- * 分频器支持小数分频，实测可用。 */
+ * 靠小数分频，实测可用。 */
 #define BOARD_I2S_CLK_SRC       I2S_CLK_SRC_DEFAULT
 #define BOARD_I2S_CLK_SRC_NAME  "PLL_160M"
 
 #define BOARD_PSRAM_MB          8
 
-/* 板载 RGB LED（v1.1 在 GPIO38，初版在 GPIO48）——
- * 将来可以做「聆听中/录音中」的状态指示，不用盯终端 */
-#define BOARD_HAS_USER_LED      1
+/* 板载 LED 通常是 WS2812（GPIO48），需要 RMT 驱动 —— 暂不使用 */
+#define BOARD_HAS_USER_LED      0
 
 /* S3 支持 ESP-SR 的 AFE + VAD + WakeNet9 —— 这正是换 S3 的动机 */
 #define BOARD_HAS_ESPSR         1
