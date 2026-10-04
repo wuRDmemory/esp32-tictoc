@@ -1,0 +1,16 @@
+# 托管组件依赖。
+#
+# ⚠️ **必须限制 target** —— 否则给 PICO（经典 ESP32）构建时也会拉这个
+#    ~170MB 的组件，而 esp-sr 对经典 ESP32 的支持本来就有限
+#    （见 docs/wakeword-research.md §2 的支持矩阵）。
+#
+# 版本选 ^2.5.5 的依据：
+#   - 2.x 是**不兼容变更**过的大版本（v1 的 AFE_CONFIG_DEFAULT 宏已删除），
+#     网上大量教程是 v1 的，抄之前先看有没有 AFE_CONFIG_DEFAULT
+#   - 避开 2.4.7（reset_vad 堆越界，issue #232）
+#   - ≥2.1.5（修了 vad_cache 复制逻辑，issue #168）
+dependencies:
+  espressif/esp-sr:
+    version: "^2.5.5"
+    rules:
+      - if: "target in [esp32s3]"
