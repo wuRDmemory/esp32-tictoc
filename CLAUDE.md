@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 这个仓库是什么
 
-ESP32 裸机项目（ESP-IDF v5.5.5），**双板支持**：
-**ESP32-PICO-V3-02**（经典 ESP32，调试用）+ **ESP32-S3-CAM N16R8**（目标板）。
-切换只需 `idf.py set-target`，板级差异全部集中在 `voice_notes/main/board.h`。
+ESP32 裸机项目（ESP-IDF v5.5.5），目标板 **ESP32-S3-CAM (N16R8)**。
+切换只需 `idf.py set-target esp32s3`，板级差异全部集中在 `voice_notes/main/board.h`。
+
+> ⚠️ **2026-10-04：ESP32-PICO-V3-02 已移出验证范围**（`decisions.md` D14）。
+> 它的代码路径**保留但不验证**，会静默腐化 —— **别假设它还能用**。
 
 | 目录 | 是什么 | 状态 |
 |---|---|---|
@@ -31,6 +33,12 @@ main/
 ```
 
 ### 双板支持（board.h）
+
+> ⚠️ **2026-10-04（`decisions.md` D14）：PICO 已移出验证范围。**
+> **S3-CAM 是唯一的目标板。** PICO 的代码路径**保留但不验证** ——
+> 它从今往后是**"未验证"**状态，会随改动静默腐化。
+> **别假设 PICO 还能用**，任何"PICO 上应该没问题"的说法都没有依据。
+> 遇到 PICO 相关的旧结论，先想清楚它是否还成立。
 
 **两块板子没有一个参数是相同的**，所以按板编译期选择，不"改数字通用"：
 
@@ -102,7 +110,10 @@ PC 侧排空能力（看 `max_in_waiting`）、以及帧协议本身。
 > 这是 `prd.md` §1.3「板端语音识别」放宽后的**新边界** ——
 > **越过它就是在 MCU 上做 ASR，那是 D3 明确排除的方向。**
 
-### voice_notes 已验收的固件配置（阶段 1，实测通过）
+### voice_notes 已验收的固件配置（阶段 1，**PICO + S3 双板实测通过**）
+
+> S3 侧的复验见 `s3-bringup.md` §5.5 —— 除引脚与时钟源来自 `board.h` 外，
+> **下面的配置在 S3 上原样成立**（含之前从未验证的「64 SCK/帧 在 I²S HW v2 上是否一致」）。
 
 `mic_test.c` 里的 I²S 配置**已验证可用，改之前先看 `hardware.md` §7**。
 最省事的做法是照抄，不要重新推导：
@@ -172,7 +183,24 @@ doesp    # 出
 
 ---
 
-## 目标板：ESP32-PICO-V3-02（**别信型号自报**）
+## 目标板：**ESP32-S3-CAM**（当前唯一目标）
+
+| | |
+|---|---|
+| 芯片 | ESP32-S3 (LX7)，rev v0.2 |
+| Flash / PSRAM | **16 MB / 8 MB 八线（octal）** |
+| USB | **原生 USB-Serial-JTAG** → `/dev/ttyACM0` |
+| 能力 | **支持 ESP-SR**（AFE / VAD）→ 板端判停可用 |
+
+**切换**：`idf.py set-target esp32s3`（Kconfig 自动选 `BOARD_S3_CAM`）。
+详见 `hello_world/docs/s3-bringup.md`。
+
+---
+
+## ~~目标板：ESP32-PICO-V3-02~~（**已停止验证**，见 D14）
+
+> ⚠️ **以下内容自 2026-10-04 起仅为历史记录。** PICO 不再验证，
+> 其代码路径保留但会静默腐化。**新的排查/改动不要依此行事。**
 
 ```
 $ esptool.py --port /dev/ttyUSB0 flash_id
@@ -189,6 +217,12 @@ Detected flash size: 8MB
 ---
 
 ## USB 链路：4 道闸门，缺一不通
+
+> ⚠️ **下面写的是 PICO（CP2102N）的路径。S3 走原生 USB，有两处不同**：
+> ① 设备节点是 `/dev/ttyACM0` 不是 `/dev/ttyUSB0`；
+> ② **不需要 `modprobe`** —— `cdc_acm` 内建于 WSL 内核（`CONFIG_USB_ACM=y`）。
+> 闸门 ①②（usbipd bind/attach）和 ④（chmod）**两者相同**。
+> 串口要 auto-detect：`serial_src.default_port()` 已实现（S3 优先）。
 
 这是本项目最耗时间的地方。设备要从 Windows 一路走到 WSL 的 `/dev/ttyUSB0`：
 
