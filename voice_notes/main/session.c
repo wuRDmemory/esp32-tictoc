@@ -5,6 +5,7 @@
 
 #include "esp_timer.h"
 
+#include "afe.h"
 #include "audio_frame.h"
 #include "i2s_mic.h"
 #include "transport.h"
@@ -20,6 +21,10 @@ void session_start(void)
     i2s_mic_reset_dc();
     i2s_mic_warmup();
 
+    /* 同理重置 VAD：上一段结束时的残留状态（通常停在 SILENCE）
+     * 会让新一段开头的"开始说话"识别不出来 */
+    afe_reset();
+
     transport_reset_counters();
     s_seq = 0;
     s_samples_sent = 0;
@@ -29,7 +34,9 @@ void session_start(void)
     transport_send_text(FRAME_TYPE_STATUS, "RECORDING");
 }
 
-void session_stop(void)
+/* by 说明是谁发起的停止：命令/按键是 "CMD"，板端 VAD 判停是 "VAD"。
+ * PC 侧据此区分"我让它停的"和"它自己停的"（decisions.md D13.3）。 */
+static void session_stop_by(const char *by)
 {
     s_recording = false;
 
@@ -47,8 +54,9 @@ void session_stop(void)
     const uint32_t tol = SESSION_CHUNK_SAMPLES * 2;   /* ~32ms */
     char msg[160];
     snprintf(msg, sizeof(msg),
-             "STOPPED dur_ms=%lld samples=%llu expected=%llu deficit=%lld "
+             "STOPPED by=%s dur_ms=%lld samples=%llu expected=%llu deficit=%lld "
              "tx_block_ms=%u %s",
+             by,
              (long long)(elapsed_us / 1000),
              (unsigned long long)s_samples_sent,
              (unsigned long long)expected,
@@ -58,6 +66,8 @@ void session_stop(void)
 
     transport_send_text(FRAME_TYPE_STATUS, msg);
 }
+
+void session_stop(void) { session_stop_by("CMD"); }
 
 bool session_is_recording(void) { return s_recording; }
 
@@ -71,9 +81,24 @@ void session_tick(void)
     const int n = i2s_mic_read(pcm, SESSION_CHUNK_SAMPLES);
     if (n <= 0) return;
 
+    /* ---- 板端判停（decisions.md D13）：AFE 只旁观 ----
+     *
+     * ⚠️ 这里的先后顺序是刻意的：「先喂 → 再看 → 照常发 → 最后停」
+     *   - AFE 只读 pcm 做判断，**不改动下面的音频路径**（D13.4）
+     *   - 触发判停的这一块**照常发出去**，不丢样本（它已是静音，发了无害）
+     *   - 停止放在发送**之后**，所以最后一段音频永远完整，不会缺尾巴
+     *
+     * PICO 上 afe_poll_event() 恒为 NONE —— 这段完全等价于不存在，行为不变。 */
+    afe_feed(pcm, n);
+    const bool speech_end = (afe_poll_event() == AFE_EVENT_SPEECH_END);
+
     const uint32_t ts_ms = (uint32_t)((esp_timer_get_time() - s_t0_us) / 1000);
     const size_t plen = audio_payload_pack(payload, s_seq++, ts_ms, pcm, (size_t)n);
 
     transport_send(FRAME_TYPE_AUDIO, payload, (uint16_t)plen);
     s_samples_sent += (uint64_t)n;
+
+    if (speech_end) {
+        session_stop_by("VAD");
+    }
 }

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "afe.h"
 #include "audio_frame.h"
 #include "diag.h"
 #include "i2s_mic.h"
@@ -45,6 +46,7 @@ void app_main(void)
      * 之后的 printf 才走中断驱动的发送缓冲 */
     transport_init();
     i2s_mic_init();
+    afe_init();
     diag_print_cfg();
     printf("就绪。敲 help 看命令；PC 侧发 START 开始录音。\n\n");
     fflush(stdout);

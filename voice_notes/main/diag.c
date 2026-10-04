@@ -18,6 +18,8 @@
 #include "driver/i2s_std.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_timer.h"
+#include "afe.h"
 #include "i2s_mic.h"
 #include "transport.h"
 
@@ -286,12 +288,92 @@ static void cmd_level(int seconds)
 }
 
 /* ------------------------------------------------------------------ */
+/* VAD 标定 —— prd.md §12-Q9 说"静音时长必须在 S3 上实测标定"，
+ * 这个命令就是那把尺子。没有它，Q9 只能靠猜。
+ *
+ * ⚠️ 只在有 AFE 的板上才有意义（PICO 会直接说明原因并退出，不是静默失败）。 */
+static void cmd_vad(int seconds)
+{
+    if (!afe_available()) {
+        /* 两种原因必须分开说 —— 否则在 S3 上会打印"经典 ESP32 不支持 AFE"这种
+         * 与事实不符的话，把"还没接入"误导成"这块板做不到"。 */
+        printf("\n>>> 板端判停当前不可用（AFE 实现：%s）\n", afe_name());
+#if BOARD_HAS_ESPSR
+        printf("    本板是 S3，**具备 AFE 能力**，但尚未接入 ESP-SR\n");
+        printf("    → 见 main/afe_espsr.c 顶部说明\n");
+#else
+        printf("    本板是经典 ESP32，**硬件不支持 AFE**（docs/wakeword-research.md §2）\n");
+        printf("    → 这是能力差异，不是故障。换 S3 再跑本命令\n");
+#endif
+        printf("    「聆听结束」仍由 PC 侧 RMS 静音检测决定（prd.md FR-5）\n\n");
+        fflush(stdout);
+        return;
+    }
+
+    printf("\n>>> VAD 标定 %d 秒 —— 说一句话，然后停顿，看它多快判停\n", seconds);
+    printf("    每行 = VAD 状态变化。★ SPEECH_END 就是「判停」\n");
+    printf("    要标定的值：从「停止说话」到 ★ 之间隔了多久（= prd.md Q9 的静音时长）\n");
+    printf("    建议依次试停顿 1 / 3 / 5 秒，看哪一次被误判成说完了\n\n");
+
+    int16_t buf[I2S_MIC_FRAMES_PER_READ];
+    const int blocks = seconds * I2S_MIC_SAMPLE_RATE / I2S_MIC_FRAMES_PER_READ;
+
+    i2s_mic_reset_dc();
+    i2s_mic_warmup();
+    afe_reset();
+
+    const int64_t t0 = esp_timer_get_time();
+    const char *last = NULL;
+    int n_end = 0;
+
+    for (int b = 0; b < blocks; b++) {
+        const int n = i2s_mic_read(buf, I2S_MIC_FRAMES_PER_READ);
+        if (n < 0) break;
+
+        afe_feed(buf, n);
+
+        /* 先取事件再取状态：事件是消费性的，取走即清除 */
+        const afe_event_t ev = afe_poll_event();
+        const char *cur = afe_vad_state_str();
+        const bool changed = (last == NULL) || (strcmp(cur, last) != 0);
+
+        if (ev != AFE_EVENT_NONE || changed) {
+            printf("  t=%5.2fs  %-8s", (esp_timer_get_time() - t0) / 1e6, cur);
+            if (ev == AFE_EVENT_SPEECH_END) {
+                printf("  ★ SPEECH_END ← 判停");
+                n_end++;
+            } else if (ev == AFE_EVENT_SPEECH_START) {
+                printf("  (开始说话)");
+            }
+            printf("\n");
+            fflush(stdout);
+            last = cur;
+        }
+    }
+
+    printf("\n================ VAD 标定结论 ================\n");
+    if (n_end == 0) {
+        printf("全程没有触发判停 —— 要么一直在说话，要么门限偏高\n");
+        printf("下一步: 安静几秒再试；仍不触发就要调 VAD 门限/模式\n");
+    } else {
+        printf("触发判停 %d 次。请对照上面的时间戳，确认「停顿多久才判停」\n", n_end);
+        printf("判读: 停顿 1 秒就被判停 = 门限太低（句子会被切断）\n");
+        printf("      停顿 5 秒还没判停 = 门限太高（失去「快」的意义）\n");
+    }
+    printf("============================================\n\n");
+    fflush(stdout);
+}
+
+/* ------------------------------------------------------------------ */
 void diag_print_cfg(void)
 {
     printf("\n================ 当前配置 ================\n");
     printf("目标板     : %s  [%s]\n", BOARD_NAME, BOARD_CHIP_FAMILY);
     printf("采样率     : %d Hz\n", I2S_MIC_SAMPLE_RATE);
     printf("时钟源     : %s\n", i2s_mic_clk_name());
+    printf("AFE/VAD    : %s  %s\n", afe_name(),
+           afe_available() ? "← 板端判停可用（D13）"
+                           : "（本板无 AFE，判停走 PC 侧 RMS）");
     printf("位宽/槽    : 32 bit × 2 槽 = 64 SCK/帧\n");
     printf("  ↑ ICS-43434 要求每 WS 帧正好 64 个 SCK（数据手册 C2）\n");
     printf("  ↑ 若用 I2S_SLOT_MODE_MONO 会变成 32 SCK/帧，麦克风直接不工作\n");
@@ -333,6 +415,7 @@ void diag_print_help(void)
     printf("  shift [n]   改 24→16bit 右移位数      (默认 16)\n");
     printf("  chan [0|1]  取左/右声道               (默认 0=左)\n");
     printf("  dc [0|1]    直流阻断开关              (默认 1=开)\n");
+    printf("  vad [秒]    VAD 判停标定表 (默认 20 秒)  ← 只有 S3 有意义\n");
     printf("  cfg         重看当前配置\n");
     printf("  help        本帮助\n\n");
     fflush(stdout);
@@ -375,6 +458,8 @@ void diag_handle_command(const char *line)
         i2s_mic_set_dc_block(arg != 0);
         printf("直流阻断 → %s\n", i2s_mic_get_dc_block() ? "开" : "关");
         fflush(stdout);
+    } else if (strcmp(cmd, "vad") == 0) {
+        cmd_vad(arg > 0 ? arg : 20);
     } else if (strcmp(cmd, "cfg") == 0) {
         diag_print_cfg();
     } else if (strcmp(cmd, "help") == 0) {
