@@ -16,16 +16,19 @@
 
 #include "esp_err.h"
 
-#define I2S_MIC_SAMPLE_RATE     16000
+#include "board.h"      /* 引脚 / 时钟源 / 采样率都来自板级定义 */
 
-/* 对外暴露引脚号，供 diag 打印配置用 */
-#define I2S_MIC_PIN_BCLK        26
-#define I2S_MIC_PIN_WS          25
-#define I2S_MIC_PIN_DIN         22
+#define I2S_MIC_SAMPLE_RATE     BOARD_SAMPLE_RATE
+
+/* 引脚号转发一下，供 diag 打印配置用。
+ * ⚠️ 真正的定义在 board.h —— 这里只是别名，别在这儿改数值。 */
+#define I2S_MIC_PIN_BCLK        BOARD_I2S_BCLK
+#define I2S_MIC_PIN_WS          BOARD_I2S_WS
+#define I2S_MIC_PIN_DIN         BOARD_I2S_DIN
 
 /* 每次读 256 帧。上限推导：dma_buffer_size = frames × slots × slot_bits/8 ≤ 4092
  * → 256 × 2 × 32/8 = 2048 字节 ✓（若取 512 则 4096 > 4092，会失败） */
-#define I2S_MIC_FRAMES_PER_READ 256
+#define I2S_MIC_FRAMES_PER_READ BOARD_FRAMES_PER_READ
 
 /* 初始化。内部已做 APLL → 默认时钟源的回退，实际用哪个用
  * i2s_mic_clk_name() 查询（别让"以为用了 APLL"成为幻觉） */

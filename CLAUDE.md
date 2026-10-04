@@ -15,6 +15,8 @@ ESP32 裸机项目（ESP-IDF v5.5.5），跑在一块 **ESP32-PICO-V3-02** 开�
 
 ```
 main/
+├── board.h          ★ 板级差异的唯一出处（引脚/时钟源/PSRAM/能力标志）
+├── Kconfig.projbuild  板子选择菜单（默认按 IDF target 自动选）
 ├── app_main.c       主循环：非录音时收命令，录音时采音+发帧+轮询 STOP
 ├── session.c/h      IDLE/RECORDING 状态机 + deficit 统计
 ├── i2s_mic.c/h      I²S 采音（阶段 1 已验证的配置，不要改）
@@ -22,6 +24,26 @@ main/
 ├── transport.c/h    UART 帧收发 + TX 阻塞时长统计
 └── diag.c/h         诊断命令（level/raw/rec/shift/chan/dc）—— 不要删
 ```
+
+### 双板支持（board.h）
+
+**两块板子没有一个参数是相同的**，所以按板编译期选择，不"改数字通用"：
+
+| | PICO-V3-02（经典） | S3-DevKitC-1 |
+|---|---|---|
+| I²S 引脚 | 26 / 25 / 22 | **5 / 6 / 7** |
+| 时钟源 | `I2S_CLK_SRC_APLL` | `I2S_CLK_SRC_DEFAULT`（S3 无 APLL） |
+| Flash / PSRAM | 8MB / 2MB quad | **16MB / 8MB octal** |
+| console | UART0 @921600 | **USB-Serial-JTAG** |
+| 设备节点 | `/dev/ttyUSB0` | **`/dev/ttyACM0`** |
+
+**切换只需 `idf.py set-target <芯片>`** —— 板子会自动选中（Kconfig 按 target 给默认值），
+`board.h` 按 `CONFIG_BOARD_*` 给参数。**不需要手工改任何文件。**
+
+⚠️ **GPIO22/25 在 S3 上物理不存在**（S3 只有 0–21、26–48），且给 S3 选的引脚
+在经典 ESP32 上会撞 SPI Flash —— 这就是为什么必须编译期选板，而不是共用一套引脚。
+
+完整记录见 `hello_world/docs/s3-bringup.md`。
 
 ### ⚠️ 已知环境限制：WSL USB 透传会偶发丢音频
 
@@ -85,6 +107,7 @@ PC 侧排空能力（看 `max_in_waiting`）、以及帧协议本身。
 | `hello_world/docs/hardware.md` | 接线、零件、逐级上电验证、**阶段 1 验收记录（§7）** |
 | `hello_world/docs/stage2-results.md` | **阶段 2 验收记录**：实测数据、发现的两个 bug、关键认知 |
 | `hello_world/docs/wakeword-research.md` | **唤醒/聆听结束调研**：xiaozhi 的做法、为什么我们芯片用不了、唯一值得借鉴的点 |
+| `hello_world/docs/s3-bringup.md` | **S3 首次上板记录**：实测参数、4 个移植坑、工作流发现 |
 | `hello_world/docs/plans/` | 各阶段的实现计划 |
 | `hello_world/docs/cloud-asr.md` | 云 ASR 申请指引（当前走本地，不用） |
 | `hello_world/docs/modules/` | ICS-43434 数据手册（PDF + 可 grep 的 txt） |

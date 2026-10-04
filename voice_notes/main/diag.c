@@ -286,6 +286,7 @@ static void cmd_level(int seconds)
 void diag_print_cfg(void)
 {
     printf("\n================ 当前配置 ================\n");
+    printf("目标板     : %s  [%s]\n", BOARD_NAME, BOARD_CHIP_FAMILY);
     printf("采样率     : %d Hz\n", I2S_MIC_SAMPLE_RATE);
     printf("时钟源     : %s\n", i2s_mic_clk_name());
     printf("位宽/槽    : 32 bit × 2 槽 = 64 SCK/帧\n");
@@ -301,7 +302,20 @@ void diag_print_cfg(void)
            I2S_MIC_FRAMES_PER_READ, I2S_MIC_FRAMES_PER_READ * 1000 / I2S_MIC_SAMPLE_RATE * 4);
     printf("引脚       : BCLK=IO%d  WS=IO%d  DIN=IO%d\n",
            I2S_MIC_PIN_BCLK, I2S_MIC_PIN_WS, I2S_MIC_PIN_DIN);
-    printf("控制台     : UART%d @ %d 8N1\n", CONSOLE_UART, CONFIG_ESP_CONSOLE_UART_BAUDRATE);
+    /* console 可能是 UART，也可能是 S3 的原生 USB —— 相关 Kconfig 符号
+     * 只在对应选项下才存在，所以要条件编译。
+     * 踩过的坑：写死 CONFIG_ESP_CONSOLE_UART_BAUDRATE 后，把 console 换成
+     * USB-Serial-JTAG 时该符号消失，直接编译不过。 */
+#if CONFIG_ESP_CONSOLE_UART
+    printf("控制台     : UART%d @ %d 8N1\n",
+           CONFIG_ESP_CONSOLE_UART_NUM, CONFIG_ESP_CONSOLE_UART_BAUDRATE);
+#elif CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+    printf("控制台     : USB-Serial-JTAG（原生 USB，无波特率概念）\n");
+#elif CONFIG_ESP_CONSOLE_USB_CDC
+    printf("控制台     : USB-CDC（原生 USB）\n");
+#else
+    printf("控制台     : 其他\n");
+#endif
     printf("==========================================\n\n");
     fflush(stdout);
 }

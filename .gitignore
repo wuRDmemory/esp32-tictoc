@@ -17,6 +17,11 @@ __pycache__/
 .venv/
 venv/
 
+# ─── clangd / 语言服务器缓存 ───
+# 由编辑器的 LSP 生成，与本项目无关
+.cache/
+compile_commands.json
+
 # ─── Claude Code 本地设置 ───
 # settings.json 是共享的；settings.local.json 是本机私有的，不入库
 .claude/settings.local.json

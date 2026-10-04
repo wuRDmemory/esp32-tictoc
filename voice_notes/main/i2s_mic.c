@@ -14,12 +14,8 @@
 #include "driver/i2s_std.h"
 #include "esp_log.h"
 
-/* 接线 —— 依据 docs/prd.md §6.3 / docs/decisions.md D10
- * 这三个脚避开了 GPIO6-11(Flash) / 0,2,12,15(strapping) / 1,3(UART) */
-#define PIN_BCLK        GPIO_NUM_26     /* → ICS-43434 引脚 4 (SCK) */
-#define PIN_WS          GPIO_NUM_25     /* → ICS-43434 引脚 1 (WS)  */
-#define PIN_DIN         GPIO_NUM_22     /* ← ICS-43434 引脚 6 (SD)  */
-/* LR 引脚(2) 接 GND → 数据出在左声道；VDD(5) 接 3V3 + 0.1µF；SD 加 100kΩ 下拉 */
+/* 接线 —— 引脚号在 board.h 里按板定义（两块板子没有一个是相同的）。
+ * LR 引脚(2) 接 GND → 数据出在左声道；VDD(5) 接 3V3 + 0.1µF；SD 加 100kΩ 下拉 */
 
 #define BYTES_PER_READ  (I2S_MIC_FRAMES_PER_READ * 2 * 4)   /* 2 槽 × 4 字节 */
 
@@ -97,7 +93,7 @@ static int read_block(int16_t *left, int16_t *right, int n_frames)
 /* ------------------------------------------------------------------ */
 /* I²S 初始化                                                          */
 /* ------------------------------------------------------------------ */
-static esp_err_t i2s_init_once(bool use_apll)
+static esp_err_t i2s_init_once(bool use_preferred_clk)
 {
     i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
     chan_cfg.dma_desc_num  = 4;
@@ -113,15 +109,17 @@ static esp_err_t i2s_init_once(bool use_apll)
                         I2S_SLOT_MODE_STEREO),   /* ⚠️ 必须 STEREO：64 SCK/帧 */
         .gpio_cfg = {
             .mclk = I2S_GPIO_UNUSED,             /* ICS-43434 不需要 MCLK */
-            .bclk = PIN_BCLK,
-            .ws   = PIN_WS,
+            .bclk = (gpio_num_t)BOARD_I2S_BCLK,
+            .ws   = (gpio_num_t)BOARD_I2S_WS,
             .dout = I2S_GPIO_UNUSED,
-            .din  = PIN_DIN,
+            .din  = (gpio_num_t)BOARD_I2S_DIN,
             .invert_flags = { .mclk_inv = false, .bclk_inv = false, .ws_inv = false },
         },
     };
-    if (use_apll) {
-        std_cfg.clk_cfg.clk_src = I2S_CLK_SRC_APLL;   /* 精确音频时钟，见 NFR-3 */
+    if (use_preferred_clk) {
+        /* 板级首选时钟源：经典 ESP32 是 APLL（更精确），
+         * S3 没有 APLL、用 PLL_160M。见 board.h */
+        std_cfg.clk_cfg.clk_src = BOARD_I2S_CLK_SRC;
     }
 
     err = i2s_channel_init_std_mode(s_rx, &std_cfg);
@@ -136,22 +134,25 @@ static esp_err_t i2s_init_once(bool use_apll)
         s_rx = NULL;
         return err;
     }
-    s_clk_name = use_apll ? "APLL" : "DEFAULT(PLL_D2)";
+    s_clk_name = use_preferred_clk ? BOARD_I2S_CLK_SRC_NAME : "DEFAULT";
     return ESP_OK;
 }
 
 esp_err_t i2s_mic_init(void)
 {
-    /* APLL 更精确，但它是共享资源，可能被别的外设占用 —— 失败就回退，
-     * 并把实际用的是哪个时钟打出来，别让"以为用了 APLL"成为幻觉 */
-    esp_err_t err = i2s_init_once(true);
+    /* 先用板级首选时钟源，失败则回退到 DEFAULT。
+     * 并把【实际生效的】是哪个打出来 —— 别让"以为用了 APLL"成为幻觉 */
+    esp_err_t err = i2s_init_once(true);   /* 先用板级首选 */
     if (err == ESP_OK) return ESP_OK;
 
-    ESP_LOGW(TAG, "APLL 初始化失败 (%s)，回退到默认时钟源", esp_err_to_name(err));
+    ESP_LOGW(TAG, "%s 时钟源初始化失败 (%s)，回退到 DEFAULT",
+             BOARD_I2S_CLK_SRC_NAME, esp_err_to_name(err));
     err = i2s_init_once(false);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "I²S 初始化彻底失败: %s", esp_err_to_name(err));
-        ESP_LOGE(TAG, "检查：1) GPIO 22/25/26 是否被别的东西占用 2) 是否真的烧到这块板子");
+        ESP_LOGE(TAG, "检查：1) GPIO %d/%d/%d 是否被别的东西占用", 
+                 BOARD_I2S_BCLK, BOARD_I2S_WS, BOARD_I2S_DIN);
+        ESP_LOGE(TAG, "      2) 板子选择对不对（menuconfig → Target board）");
     }
     return err;
 }
