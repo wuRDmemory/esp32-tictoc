@@ -21,10 +21,13 @@ main/
 ├── Kconfig.projbuild  板子选择菜单（默认按 IDF target 自动选）
 ├── app_main.c       主循环：非录音时收命令，录音时采音+发帧+轮询 STOP
 ├── session.c/h      IDLE/RECORDING 状态机 + deficit 统计
+├── afe.h            ★ AFE 能力抽象（板端判停，D13）
+├── afe_passthrough.c   PICO 实现：全空操作，永不上报事件
+├── afe_espsr.c         S3 实现：⚠️ 当前是临时骨架，**尚未接入 ESP-SR**
 ├── i2s_mic.c/h      I²S 采音（阶段 1 已验证的配置，不要改）
 ├── audio_frame.c/h  帧编解码（纯 C，可在 PC 上用 gcc 单测）
 ├── transport.c/h    UART 帧收发 + TX 阻塞时长统计
-└── diag.c/h         诊断命令（level/raw/rec/shift/chan/dc）—— 不要删
+└── diag.c/h         诊断命令（level/raw/rec/shift/chan/dc/vad）—— 不要删
 ```
 
 ### 双板支持（board.h）
