@@ -2,7 +2,10 @@
 """阶段 2 验收：连续录音 N 秒，检查丢帧与完整性。
 
 用法：
-    cd voice_notes/PC && oesp && python stage2_accept.py [秒数]
+    cd voice_notes/PC && oesp && python stage2_accept.py [秒数] [串口]
+
+    python stage2_accept.py 60                  # 自动挑口（S3 优先）
+    python stage2_accept.py 60 /dev/ttyUSB0     # 显式指定（多板同时插着时用）
 
 通过标准（四条全过才算过）：
   1. 丢帧（seq 缺口）= 0                  —— 固件发出的帧都到了
@@ -44,17 +47,22 @@ def parse_status(s: str) -> dict:
 
 def main() -> int:
     seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 60
+    # 第二个参数是串口；不给就自动挑（S3 优先，见 serial_src.default_port）
+    port = sys.argv[2] if len(sys.argv) > 2 else None
     wav_path = Path(__file__).resolve().parent / "stage2_accept.wav"
 
-    src = SerialSource()
+    src = SerialSource(port=port)
     try:
         src.open()
     except Exception as e:  # noqa: BLE001
-        print(f"❌ 打不开串口: {e}")
-        print("   1) 设备在不在:  ls -la /dev/ttyUSB0")
-        print("   2) 权限对不对:  sudo chmod 666 /dev/ttyUSB0")
-        print("   3) 谁占着口:    lsof /dev/ttyUSB0")
+        print(f"❌ 打不开串口 {src.port}: {e}")
+        print(f"   1) 设备在不在:  ls -la {src.port}")
+        print(f"   2) 权限对不对:  sudo chmod 666 {src.port}")
+        print(f"   3) 谁占着口:    lsof {src.port}")
         return 1
+
+    # ⚠️ 把实际用的口打出来 —— 双板环境下不能让"用的是哪块板"成为隐藏状态
+    print(f"串口: {src.port}")
 
     try:
         print("等待板子就绪...", end="", flush=True)
@@ -73,11 +81,19 @@ def main() -> int:
         events = []
         last_lost = last_bad = 0
 
+        self_stopped = False
         while time.time() < deadline:
             fr = src.read_audio(timeout=min(1.0, max(0.05, deadline - time.time())))
             if fr is not None:
                 rec.feed(fr.pcm)
                 frames_seen += 1
+
+            # ⚠️ D13 之后固件可能**自己判停**（S3 上的板端 VAD，`by=VAD`）。
+            #    收到 STOPPED 就该收工，不能傻等到计划的秒数 ——
+            #    否则会把"固件正常自停"误报成"脚本没录满"。
+            if src.last_status.startswith("STOPPED"):
+                self_stopped = True
+                break
 
             cur_bad = src._parser.bad_crc_count
             if src.lost != last_lost or cur_bad != last_bad:
@@ -86,8 +102,11 @@ def main() -> int:
                 last_lost, last_bad = src.lost, cur_bad
 
         # 关键：STOP 是在**录音过程中**发的，这正是帧协议存在的理由
-        print(">>> 录音结束，发送 STOP")
-        src.send_control("STOP")
+        if self_stopped:
+            print(">>> 固件已自行判停（by=VAD），跳过发 STOP")
+        else:
+            print(">>> 录音结束，发送 STOP")
+            src.send_control("STOP")
         src.drain(1.5)          # 排空尾帧，顺便收 STOPPED 状态
 
         samples = rec.close()
@@ -97,7 +116,14 @@ def main() -> int:
         src.close()
 
     # ---- 判定 ----
-    expect_samples = seconds * RATE
+    #
+    # ⚠️ 基准时长用**固件自报的 dur_ms**，不是脚本计划的 seconds。
+    #    D13 之后固件可能自己判停（S3 的板端 VAD），实际录音短于计划是**正常**的 ——
+    #    用计划值会把"固件正常自停"误判成"没录满"。（实测踩过：录了 41.5s 被判失败）
+    dur_ms = status.get("dur_ms")
+    by = str(status.get("by", "?"))
+    expect_samples = (dur_ms * RATE // 1000) if dur_ms else seconds * RATE
+
     deficit = status.get("deficit")
     tx_block = status.get("tx_block_ms")
 
@@ -113,7 +139,8 @@ def main() -> int:
          f"{loss_rate * 100:.3f}%  (丢 {st['lost']}/{total_frames} 帧)"),
         ("I²S 无丢样本（deficit≈0）", deficit is not None and abs(deficit) < 1000,
          f"deficit={deficit}"),
-        ("样本数符合时长（±1%）", abs(samples - expect_samples) <= expect_samples * 0.01,
+        ("样本数符合固件自报时长（±1%）",
+         abs(samples - expect_samples) <= expect_samples * 0.01,
          f"{samples}/{expect_samples}"),
         # CRC 错误不再是失败项：它与丢帧同源（停顿导致中途中字节），
         # 只作信息上报。若它显著高于丢帧数，才说明另有问题。
@@ -157,6 +184,9 @@ def main() -> int:
             print(f"    相邻事件间隔(秒): {gaps}")
 
     print(f"  帧数 {st['frames']}  时长 {samples / RATE:.1f}s")
+    print(f"  停止来源: by={by}"
+          + ("  ← 固件板端 VAD 自己判停（D13）" if by == "VAD"
+             else "  ← PC 发的 STOP" if by == "CMD" else ""))
     print(f"  固件状态: {st['last_status'] or '(未收到)'}")
     print(f"  WAV: {wav_path}")
     print()

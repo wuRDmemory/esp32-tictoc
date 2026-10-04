@@ -12,7 +12,19 @@
 
 3. **串口读是非阻塞的（timeout 很小），靠循环+截止时间实现"等待"。**
    因为一帧音频只有 16ms，用大 timeout 会累积延迟。
+
+4. **串口要自动挑，不能写死。** 固件侧的双板支持靠 `board.h` 编译期选，
+   但 PC 侧没法编译期知道接了哪块板 —— 只能运行时看设备节点：
+
+   | 板 | 设备节点 | 来源 |
+   |---|---|---|
+   | PICO-V3-02 | `/dev/ttyUSB*` | CP2102N 桥接 |
+   | S3-CAM | `/dev/ttyACM*` | 原生 USB-Serial-JTAG |
+
+   ⚠️ **挑完要把结果打出来**（调用方用 `src.port` 显示）——
+   不能让"这次用的是哪个口"变成隐藏状态。
 """
+import glob
 import time
 from typing import Optional
 
@@ -22,9 +34,24 @@ from frames import TYPE_AUDIO, TYPE_STATUS, FrameParser, unpack_audio
 from sources.base import AudioFrame, AudioSource
 
 
+def default_port() -> str:
+    """自动挑串口：优先原生 USB（S3），退回 CP2102N（PICO）。
+
+    ⚠️ 顺序是有意的：S3 是目标板，且原生 USB 没有 CP2102N 那个
+       512 字节缓冲（= 阶段 2 丢帧的根源，见 docs/stage2-results.md §7）。
+    """
+    for pattern, _board in (("/dev/ttyACM*", "S3"), ("/dev/ttyUSB*", "PICO")):
+        hits = sorted(glob.glob(pattern))
+        if hits:
+            return hits[0]
+    # 都没找到 → 沿用旧的默认值，让报错信息保持熟悉（"打不开 /dev/ttyUSB0"）
+    return "/dev/ttyUSB0"
+
+
 class SerialSource(AudioSource):
-    def __init__(self, port: str = "/dev/ttyUSB0", baud: int = 921600) -> None:
-        self.port = port
+    def __init__(self, port: Optional[str] = None, baud: int = 921600) -> None:
+        # port=None 表示"自动挑"。显式传值则照用（给多板同时插着时用）。
+        self.port = port or default_port()
         self.baud = baud
         self._ser: Optional[serial.Serial] = None
         self._parser = FrameParser()
