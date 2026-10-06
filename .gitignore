@@ -7,6 +7,12 @@ sdkconfig.old
 managed_components/
 dependencies.lock
 
+# ─── 小智固件（xiaozhi-esp32）───
+# ⚠️ 它现在是【git submodule】，所以**不能**在这里忽略 —— 忽略会让
+#    git 看不到 .gitmodules 记录的 commit，submodule 直接失效。
+# 上游：78/xiaozhi-esp32（remote 名 upstream）
+# 我们的 fork：wuRDmemory/xiaozhi-esp32（remote 名 origin，分支 s3cam-port）
+
 # ─── Windows 文件系统元数据 ───
 # 从 Windows 复制文件过来时会带上 ADS 数据流文件，是垃圾
 *Zone.Identifier

@@ -1,0 +1,3 @@
+[submodule "xiaozhi-esp32"]
+	path = xiaozhi-esp32
+	url = git@github.com:wuRDmemory/xiaozhi-esp32.git

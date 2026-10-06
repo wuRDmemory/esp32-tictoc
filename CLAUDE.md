@@ -14,6 +14,23 @@ ESP32 裸机项目（ESP-IDF v5.5.5），目标板 **ESP32-S3-CAM (N16R8)**。
 |---|---|---|
 | `hello_world/` | 板子验证工程 + `test_board.py` | ✅ 已完成 |
 | `voice_notes/` | **语音速记工具**（STT）：ICS-43434 采音 → PC 本地**整段**转写 → ollama 总结 | 🟢 阶段 1（采音）✅ · 阶段 2（串口流）✅ · 阶段 3（转写）未开始 |
+| `xiaozhi-esp32/` | **小智 AI 语音助手**移植（对话式）。⚠️ 它是 **git submodule**，不是普通目录 | 🟢 阶段 1（编译烧录+联网+采音+唤醒）✅ · 阶段 2（摄像头）未开始 |
+
+> ⚠️ **`xiaozhi-esp32/` 是 submodule**，有两个 remote：
+>
+> | remote | 指向 | 用途 |
+> |---|---|---|
+> | `origin` | `wuRDmemory/xiaozhi-esp32`（我们的 fork） | 推我们的改动，分支 **`s3cam-port`** |
+> | `upstream` | `78/xiaozhi-esp32`（官方） | 日后合并官方更新 |
+>
+> **三条 submodule 特有的坑：**
+>
+> 1. **新克隆本仓库后必须先 `git submodule update --init`**，否则 `xiaozhi-esp32/`
+>    是个**空目录** —— 会以为代码丢了。
+> 2. **在 submodule 里提交后，必须回父仓库再提交一次**（记录新的 commit 号），
+>    而且**要先把 submodule 推到 origin** —— 否则父仓库指向一个远端不存在的 commit，
+>    别人克隆下来 `submodule update` 会失败。
+> 3. 改完 submodule 忘了推是这套方案最常见的翻车方式。
 
 ### voice_notes 的固件结构（阶段 2 起）
 
@@ -156,6 +173,129 @@ PC 侧排空能力（看 `max_in_waiting`）、以及帧协议本身。
 
 ---
 
+## 小智固件（`xiaozhi-esp32/`）—— 配网 / 激活 / 唤醒
+
+> 移植记录与验收证据：`hello_world/docs/plans/2026-10-04-xiaozhi-s3cam-port.md`
+> 板级配置与说明：`xiaozhi-esp32/main/boards/esp32-s3-cam-ics43434/README.md`
+
+### ⚠️ 前提：这块板子**没屏也没喇叭**
+
+上游默认有屏有喇叭。本板两样都没有，这**决定了两件事**：
+
+| 缺什么 | 后果 | 处理 |
+|---|---|---|
+| 屏幕 | 状态、识别文字没处显示 | **不用管** —— `Display::SetChatMessage()` 基类实现本身就会 `ESP_LOGW` 打到串口，识别文字**自动进日志** |
+| 喇叭 + 屏幕 | **验证码无处可去** | **必须打补丁** —— 见下面「服务器激活」 |
+
+### ① 配网
+
+**没有存 WiFi 凭据时，设备开机会自动进配网模式**，不需要按键：
+
+```
+WifiConfigurationAp: Access Point started with SSID Xiaozhi-C391
+esp_netif_lwip: DHCP server started ... IP: 192.168.4.1
+```
+
+- 热点名 = **`Xiaozhi-` + softAP MAC 的后两字节**
+  ⚠️ **陷阱**：是 **softAP MAC**（= STA MAC + 1），不是 STA MAC。
+  本板 STA MAC 是 `b8:1f:3f:ab:c3:**90**`，但热点名是 **`Xiaozhi-C391`**（`…c3:**91**`）。
+  按 STA MAC 猜会猜成 `C390`，**猜错**。（我踩过这条。）
+- 手机连上该热点 → 浏览器开 **`http://192.168.4.1`** → 填家里 WiFi
+- 连上热点后手机提示"无互联网连接"是**正常的**，别切走
+- 设备需要能访问**外网**才能激活
+
+**BOOT 键在配网里的作用**：只在**启动阶段**（`kDeviceStateStarting`）按下才进配网模式；
+启动完成后按它就是切换对话状态（见下面「唤醒」）。**所以别指望用 BOOT 键重新配网。**
+
+### ② 服务器激活（每台设备一次）
+
+设备连上网后去连 `api.tenclass.net`（OTA 端点，**同时负责下发服务器地址**），
+拿到 **6 位激活码** → 用户去 <https://xiaozhi.me> 注册 → 控制台添加设备 → 输入该码。
+
+> ⚠️ **验证码必须靠我们的串口补丁才能拿到 —— 这不是洁癖，是必需品。**
+>
+> 上游 `Application::ShowActivationCode()` 只把码交给**屏幕显示**和**语音播报**两条路。
+> `Alert()` 里虽然打了 `ESP_LOGW`，但打的是 `message` **提示语，不是 `code` 本身**。
+> 本板无屏无喇叭 → 不补丁就**永远激活不了**。
+>
+> 补丁位置：`main/application.cc` 的 `ShowActivationCode()` **开头**一行 `ESP_LOGW`。
+> **别当调试残留清掉。** 将来若配上屏幕或喇叭，才可以删。
+
+⚠️ **激活码有有效期**：固件只轮询 `Activate()` 约 **10 次**（每次间隔 3~10 秒）。
+错过了就**重启板子**拿新码 —— 新码会立刻再打出来。
+
+### ③ 唤醒与对话
+
+激活成功后 `State: activating -> idle`，AFE 挂上 WakeNet 开始听：
+
+```
+AfeAudioEngine: Model 0: wn9_nihaoxiaozhi_tts
+AFE: AFE Pipeline: [input] -> |VAD(WebRTC)| -> |WakeNet(wn9_nihaoxiaozhi_tts,)| -> [output]
+AudioCodec: Set input enable to true
+```
+
+- **唤醒词：`你好小智`**
+- **嘴要离麦克风 20cm 以内** —— 本模块灵敏度低于规格（见上面 voice_notes 那节）
+- 唤醒成功的判据（**每一环都有日志，没有黑盒**）：
+  ```
+  Application: Wake word detected: 你好小智     ← WakeNet 在板端判出
+  StateMachine: State: idle -> connecting
+  StateMachine: State: connecting -> listening
+  Display: Role:user
+  Display:      你好小智                        ← STT 结果，自动进串口
+  ```
+- **BOOT 键**（运行中按）= 手动触发一轮对话。判据：也会 `idle -> connecting`，
+  但**没有** `Wake word detected` 那行 —— **这就是区分「按键」和「唤醒词」的依据**。
+  （`GPIO0` 已实测确认。）
+
+### ⚠️ 麦克风：ICS-43434 的 64 SCK/帧硬要求，**不能用上游 codec**
+
+上游 `main/audio/codecs/no_audio_codec.cc` 把麦克风配成
+`I2S_SLOT_MODE_MONO` + 32bit = **32 SCK/帧**。而 ICS-43434 要求**每帧正好 64 SCK**
+（与 voice_notes 那条约束同源）—— 用上游配置**麦克风完全不出数据**，
+不是音质差，是**根本没数据**。
+
+所以本板自带 `ics43434_codec.{h,cc}`，与上游两处差异：
+
+1. 麦克风改用 `I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(32BIT, STEREO)` = 64 SCK/帧
+2. `Read()` 用 `>>16`（上游 `>>12` 是按 INMP441 调的音量增益）。
+   24bit 数据在 32bit 字的 `[31:8]`，取左声道后 `>>16` 才对。
+
+**✅ `>>16` 已实测可用**（一次唤醒成功），**不必**向 `>>12` 靠拢。
+`ICS43434_SHIFT` 是独立宏，要调只改一处。
+
+### 构建与烧录
+
+```bash
+oesp                                    # 必须先激活（硬依赖）
+cd xiaozhi-esp32
+idf.py set-target esp32s3
+# 选板：把 sdkconfig 切到 CONFIG_BOARD_TYPE_ESP32_S3_CAM_ICS43434=y
+idf.py build
+idf.py -p /dev/ttyACM0 flash monitor
+```
+
+⚠️ **IDF 版本是硬约束**：上游 **v2.4.0 起主线已迁到 ESP-IDF 6.0+**，
+v2.5.0 明确**不支持 5.x**。本机是 **5.5.5**，所以基线锁在 **v2.3.0**（要求 5.4+，
+2026-07-15，功能上并不缺东西 —— s3cam 板子和摄像头抽象都在）。
+**要跟进上游就得另装 IDF 6.1**（两套环境可并存，voice_notes 继续用 5.5.5）。
+
+⚠️ `CONFIG_BOARD_TYPE_*` 是 **choice**：切换板子时要**同时**把旧板子设成
+`# CONFIG_..._OLD is not set`，只把新的设 `=y` 是不够的。
+
+### 抓串口日志
+
+```bash
+oesp && python xiaozhi_monitor.py -t 120        # 复位并抓 120 秒
+oesp && python xiaozhi_monitor.py --no-reset    # 不复位，只监听
+```
+
+脚本**先开端口再复位**（顺序反了会丢开头，而 panic 和激活码恰恰都在开头），
+并能在芯片重启导致 CDC 瞬断时**自动重连**（配网后重启就会发生）。
+抓到激活码会提前退出。
+
+---
+
 ## 第一件事：激活环境
 
 **任何 `idf.py` 命令前必须先 `oesp`。** 这不是习惯问题，是硬依赖。
@@ -224,6 +364,22 @@ Detected flash size: 8MB
 > 闸门 ①②（usbipd bind/attach）和 ④（chmod）**两者相同**。
 > 串口要 auto-detect：`serial_src.default_port()` 已实现（S3 优先）。
 
+> ⚠️ **usbipd 的「假 Attached」陷阱**（2026-10-04 踩到，浪费过时间）：
+> **WSL 重启后，`usbipd list` 会继续显示 `Attached`，但 WSL 内核里根本没有这个设备**
+> —— `/sys/bus/usb/devices/` 里只有根 hub，`dmesg` 里也没有接入事件。
+> 此时 `attach` 会报 `error: Device with busid 'X-Y' is already attached to a client`，
+> **听起来像"已经好了"，其实完全不通**。
+>
+> **解法**：先 `detach` 再 `attach`。
+> ```bash
+> "/mnt/c/Program Files/usbipd-win/usbipd.exe" detach --busid 4-3   # 无输出即成功
+> "/mnt/c/Program Files/usbipd-win/usbipd.exe" attach --wsl --busid 4-3
+> ```
+> `detach`/`attach` 都**能从 WSL 里直接调 `.exe`，不需要管理员权限**。
+>
+> **先看这两个判据再决定要不要重绑**：`ls /sys/bus/usb/devices/`（应有 `1-1` 之类，
+> 不是只有 `usb1`/`usb2`）、`ls /dev/ttyACM*`。**别只看 `usbipd list` 的 STATE 列。**
+
 这是本项目最耗时间的地方。设备要从 Windows 一路走到 WSL 的 `/dev/ttyUSB0`：
 
 ```
@@ -277,10 +433,18 @@ powershell.exe -NoProfile -Command "Get-PnpDevice | Where-Object { \$_.InstanceI
 ```bash
 cd hello_world
 idf.py build                                  # 编译
-idf.py -p /dev/ttyUSB0 flash monitor          # 烧录 + 看串口 (Ctrl+] 退出)
+idf.py -p /dev/ttyACM0 flash monitor          # 烧录 + 看串口 (Ctrl+] 退出)
 
 oesp && python ../test_board.py               # 端到端验证：硬复位+抓日志+发数据验回显
 ```
+
+> ⚠️ **设备节点是 `/dev/ttyACM0`，不是 `/dev/ttyUSB0`** —— 这是 D14 换板后的遗留更正：
+> S3 走**原生 USB**（`303a:1001`），PICO 才走 CP2102N（`/dev/ttyUSB0`）。
+> 而 PICO 已停止验证，**所以本仓库现在只该出现 `/dev/ttyACM0`**。
+> 见到 `/dev/ttyUSB0` 就是陈旧内容，照做会打不开端口。
+>
+> ⚠️ 另：`test_board.py` 里若还写死着 `/dev/ttyUSB0`，同样要按这条改
+> （voice_notes 侧已修过同类问题，见 commit `8ab00f7`）。
 
 `test_board.py` 用 DTR/RTS 硬复位板子（DTR→GPIO0 启动模式，RTS→EN 复位），然后真的发数据并校验回显，不是只看有没有输出。
 
