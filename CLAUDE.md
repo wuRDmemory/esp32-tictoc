@@ -357,9 +357,32 @@ doesp    # 出
 ### ⚠️ 模组手册的两条勘误（2026-10-06 查 ESP32-S3-WROOM-1 数据手册 v1.4）
 
 > 出处：`hello_world/docs/modules/esp32-modula.pdf`
-> （⚠️ 文件名是 **module** 的笔误。它是 **WROOM-1 模组**手册，**不是 CAM 板**手册。）
+> （⚠️ 文件名是 **module** 的笔误。它是 **WROOM-1 模组**手册，**不是 CAM 板**手册。
+> 该 PDF **7.2 MB，已加进 `.gitignore`** —— 只看不存，需要时自己下载。）
 > 可 grep 的文本版：同目录 `esp32-modula.txt`（⚠️ **中文是乱码** —— CFF Type1 字体
 > 编码问题，fontTools 也修不好；**引脚号和英文功能名是好的，读那些**）。
+
+**📖 怎么读这类大体积数据手册（方法留档，下次不用重新摸索）**
+
+本机**没有 `pdftotext`**（poppler-utils 未装），所以走 Python。临时装到 `/tmp`：
+```bash
+pip install --target=/tmp/pdflib pypdf          # ⚠️ /tmp 重启即失，用到时重装
+PYTHONPATH=/tmp/pdflib python -c "
+import re; from pypdf import PdfReader
+r = PdfReader('xxx.pdf')
+out = [f'\n===== PAGE {i} =====\n{p.extract_text() or \"\"}' for i,p in enumerate(r.pages,1)]
+txt = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', ''.join(out))   # ← 必做
+open('xxx.txt','w').write(txt)"
+```
+⚠️ **那句正则是必须的**：pypdf 的输出带 NUL 字节，**不清洗的话 git 会判定为二进制**
+（git 只看前 8000 字节有无 NUL），于是**无法 diff**。踩过一次。
+
+**定位章节不要一页页读** —— 按关键词密度扫一遍，直接跳到目标页：
+```bash
+# 例：找管脚定义表 —— 数每页出现多少个不同的 GPIO
+grep -c "GPIO"  # 或按页统计：出现 >=8 个不同 GPIO 的页就是候选
+```
+本次就是这样定位到 **表 3 在 PDF 第 11–12 页、引脚图在第 36–37 页**，再定点精读的。
 
 **① `IO35 / IO36 / IO37` 在 N16R8 上不可用**
 手册脚注 b：集成 Octal SPI PSRAM 的 **ESP32-S3R8 / S3R16V** 会复用这三个脚。
