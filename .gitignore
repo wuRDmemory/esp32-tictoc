@@ -17,6 +17,12 @@ dependencies.lock
 # 从 Windows 复制文件过来时会带上 ADS 数据流文件，是垃圾
 *Zone.Identifier
 
+# ─── 大体积参考文档（只看不存）───
+# 7.2 MB，是库内现有最大数据手册的 10 倍；进 git 历史后不好撤。
+# 需要时自己下载 —— 可 grep 的文本版 esp32-modula.txt 已入库，日常够用。
+# ⚠️ 其它数据手册（ICS-43434.PDF / 93545.pdf）**照常入库**，只忽略这一个。
+hello_world/docs/modules/esp32-modula.pdf
+
 # ─── Python ───
 __pycache__/
 *.py[cod]
