@@ -20,10 +20,10 @@ ESP32 裸机项目（ESP-IDF v5.5.5），目标板 **ESP32-S3-CAM (N16R8)**。
 >
 > | remote | 指向 | 用途 |
 > |---|---|---|
-> | `origin` | `wuRDmemory/xiaozhi-esp32`（我们的 fork） | 推我们的改动，分支 **`s3cam-port`** |
+> | `origin` | `wuRDmemory/xiaozhi-esp32`（我们的 fork） | 推我们的改动，分支 **`s3cam-port`**。**fetch 走 HTTPS，push 走 SSH**（见下面坑 4） |
 > | `upstream` | `78/xiaozhi-esp32`（官方） | 日后合并官方更新 |
 >
-> **三条 submodule 特有的坑：**
+> **四条 submodule 特有的坑：**
 >
 > 1. **新克隆本仓库后必须先 `git submodule update --init`**，否则 `xiaozhi-esp32/`
 >    是个**空目录** —— 会以为代码丢了。
@@ -31,6 +31,25 @@ ESP32 裸机项目（ESP-IDF v5.5.5），目标板 **ESP32-S3-CAM (N16R8)**。
 >    而且**要先把 submodule 推到 origin** —— 否则父仓库指向一个远端不存在的 commit，
 >    别人克隆下来 `submodule update` 会失败。
 > 3. 改完 submodule 忘了推是这套方案最常见的翻车方式。
+> 4. ⚠️ **`.gitmodules` 里必须用 HTTPS，不能用 `git@`**（2026-10-06 实测）：
+>
+>    | 协议 | 实测速度 | 12MB 仓库耗时 |
+>    |---|---|---|
+>    | `git@github.com:`（SSH） | **~25 KB/s** | **20 分钟以上** |
+>    | `https://github.com/` | **~900 KB/s** | **< 1 分钟** |
+>
+>    **差 36 倍。** 不是网络问题 —— 同一时刻 HTTPS 直连 GitHub 有 743 KB/s、
+>    阿里云镜像 5 MB/s，只有 git-over-SSH 这一条路病态地慢（疑与 WSL2
+>    的 mirrored 网络模式有关）。**写 `git@` 会让每次 clone 卡 20 分钟，
+>    而且看起来像"卡死"** —— 实际上它在慢慢传。
+>
+>    推送仍走 SSH（fork 是**公开**的，拉取不需要凭据；但推送需要鉴权，
+>    而本机没有 HTTPS token）：
+>    ```bash
+>    git -C xiaozhi-esp32 remote set-url --push origin git@github.com:wuRDmemory/xiaozhi-esp32.git
+>    ```
+>    ⚠️ 这是**本机局部设置**，不随 `.gitmodules` 走。`git submodule sync` 会把它冲掉，
+>    换机器后要重设一次。
 
 ### voice_notes 的固件结构（阶段 2 起）
 
