@@ -1,0 +1,3130 @@
+
+===== PAGE 1 =====
+ESP32-S3-WROOM-1
+ESP3
+2-S3-WROOM-1U
+඀ ϱЧ 1.4
+2.4 GHz Wi-Fi (802. 11b/g/n) + ড࿩ ® 5 ଆቆ
+ଽᇂ ESP32-S3 ༢ਙྉோđXtensa®ނ32 ໊ LX7 ԩ৘ఖ
+Flash ቋնॖ࿊ 16 MBđPSRAM ቋնॖ࿊ 16 MB
+؟36 ۱ GPIOຓഡ
+ϰᄛ PCBఖ
+ESP32-S3-WROOM-1
+ ESP32-S3-WROOM-1U
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 2 =====
+1ඍ
+1ඍ
+1. 1 หྟ
+CPUோഈթԥఖ
+• ଽᇂ ESP3
+2-S3 ༢ਙྉோđXtensa®ނ32 ໊
+LX7 ັԩ৘ఖ (ᄎෘֆჭ)đᆦӻ
+ղ240 MHzൈᇒ௔ੱ
+• 384 KB ROM
+• 512 KB SRAM
+• 16 KB RTC SRAM
+• ቋն16 MB PSRAM
+Wi-Fi
+• 802.11b/g/n
+• 802.11nղ150 Mbps
+•ކTX/RX A-MPDU, TX/RX A-MSDU)
+• 0.4 µsۯࡗ޹
+•ຶğ2412 ~2484 MHz
+ড࿩
+•ড࿩ (Bluetooth LE)ğBluetooth 5aBlue-
+tooth mesh
+• ෎ੱᆦӻ125Kbpsa500Kbpsa1Mbpsa2Mbps
+•Ѭঔᅚ(Advertising Extensions)
+•Ѭ(Multiple Advertisement Sets)
+•࿊ᄴ(Channel Selection Algorithm #2)
+• Wi-FiႨ๝၂۱฿ཌ
+ຓഡ
+• 36 ۱GPIO
+– 4 ۱ቔູstrapping࢖ܵ
+•SPIaLCDaCamera१aUARTaI2CaI2Sຓဪ
+ඔఖaLEDPWMa ಆ෎USB2.0OTG a
+USB Ա१/JTAG॥ᇅఖaMCPWMaSD/MMCࠏ
+॥ᇅఖaGDMAaTWAI®ಸISO11898-
+1Ď aADCु
+ܐ
+ࡱ
+•40 MHzᆒ
+• ቋն16 MB Quad SPI flash
+฿ཌ࿊྘
+• ESP32-S3-WROOM-1ğϰᄛPCB ฿ཌ
+• ESP32-S3-WROOM-1Uຓ҆฿
+ཌ
+ࡱ
+•࿢/࿢ğ3.0 ~3.6 V
+•ğ
+– 65 °Cϱଆቆğ ⚶40 ~65 °C
+– 85 °Cϱଆቆğ ⚶40 ~85 °C
+– 105 °Cϱଆቆğ ⚶40 ~105 °C
+ಪᆣ
+• RF࡮ᆣ඀
+•ЌಪᆣğRoHS/REACH
+ҩ൫
+• HTOL
+/HTSL/uHAST/TCT/ESD
+2
+࡮
+ESP32-S3-WROOM-1 &
+WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 3 =====
+1ඍ
+1.2б
+ESP32-S3-WROOM-1ބESP32-S3-
+WROOM-1U ൞ਆॻ๙Ⴈ྘ Wi-Fi +ড࿩ MCU ଆቆđձᄛ ESP32-S3
+ԩ৘ି৯đൡႨႿAIoT ਵთ
+a ᇆି॥ᇅ૫ϰa ᇆ
+b
+ESP32-S3-WROOM-1 ҐႨ PCB ϰᄛ฿ཌđESP32-S3-WROOM-1U؟
+і1ބ2b ఃᇏđESP32-S3-WROOM-1-H4ބESP32-S3-WROOM-1U-H4໑
+ູ⚶40 ~105 °CđଽᇂESP32-S3R8ބESP32-S3R16Vູ⚶40 ~65 °Cቔ
+नູ⚶40 ~ 85 °CؓR8ބR16V ༢ਙଆቆ (ଽᇂ Octal SPI PSRAM)đ೏षఓPSRAM ECC
+֞ۚ85 °Cđ֌൞PSRAMഒ1/16b
+і 1: ESP32-S3-WROOM-1б1
+؇6 ଆቆԄժ7
+ս઒2 Flash3, 4 PSRAM5
+(°C) (mm)
+ESP32-S3-WROOM-1-N4 4 MB (Quad SPI) - ⚶40 ~85
+18.0
+×
+25.5
+×
+3.
+1
+ESP32-S3-WROOM-1-N8 8 MB (Quad SPI) - ⚶40 ~85
+ESP32-S3-WROOM-1-N16 16 MB (Quad SPI) - ⚶40 ~85
+ESP32-S3-WROOM-1-H4 4 MB (Quad SPI) - ⚶40 ~105
+ESP32-S3-WROOM-1-N4R2 4 MB (Quad SPI) 2 MB (Quad SPI) ⚶40 ~85
+ESP32-S3-WROOM-1-N8R2 8 MB (Quad SPI) 2 MB (Quad SPI) ⚶40 ~85
+ESP32-S3-WROOM-1-N16R2 16 MB (Quad SPI) 2 MB (Quad SPI) ⚶40 ~85
+ESP32-S3-WROOM-1-N4R8 4 MB (Quad SPI) 8 MB (Oct
+al SPI) ⚶40 ~65
+ESP32-S3-WROOM-1-N8R8 8 MB (Quad SPI) 8 MB (Oct
+al SPI) ⚶40 ~65
+ESP32-S3-WROOM-1-N16R8 16 MB (Quad SPI) 8 MB (Oct
+al SPI) ⚶40 ~65
+ESP32-S3-WROOM-1-N16R16VA8 16 MB (Quad SPI) 16 MB (Oct
+al SPI) ⚶40 ~65
+1ᇿ൤ଽಸაі2 ၂ᇁb
+і 2: ESP32-S3-WROOM-1Uб
+؇6 ଆቆԄժ7
+ս઒2 Flash3, 4 PSRAM5
+(°C) (mm)
+ESP32-S3-WROOM-1U-N4 4 MB (Quad SPI) - ⚶40 ~85
+18.0
+×
+19.2
+×
+3.2
+ESP32-S3-WROOM-1U-N8 8 MB (Quad SPI) - ⚶40 ~85
+ESP32-S3-WROOM-1U-N16 16 MB (Quad SPI) - ⚶40 ~85
+ESP32-S3-WROOM-1U-H4 4 MB (Quad SPI) - ⚶40 ~105
+ESP32-S3-WROOM-1U-N4R2 4 MB (Quad SPI) 2 MB (Quad SPI) ⚶40 ~85
+ESP32-S3-WROOM-1U-N8R2 8 MB (Quad SPI) 2 MB (Quad SPI) ⚶40 ~85
+ESP32-S3-WROOM-1U-N16R2 16 MB (Quad SPI) 2 MB (Quad SPI) ⚶40 ~85
+ESP32-S3-WROOM-1U-N4R8 4 MB (Quad SPI) 8 MB (Oct
+al SPI) ⚶40 ~65
+ESP32-S3-WROOM-1U-N8R8 8 MB (Quad SPI) 8 MB (Oct
+al SPI) ⚶40 ~65
+ESP32-S3-WROOM-1U-N16R8 16 MB (Quad SPI) 8 MB (Oct
+al SPI) ⚶40 ~65
+ESP32-S3-WROOM-1U-N16R16VA8 16 MB (Quad SPI) 16 MB (Oct
+al SPI) ⚶40 ~65
+3
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 4 =====
+1ඍ
+2ᇅESP32-S3-WROOM-1-H4aESP32-S3-WROOM-1U-H4ࠇESP3 2-S3-WROOM-1U-N16R16VA ଆ
+ቆđ౨ ৳༢໡ૌb
+3 ଏಪ౦ঃ༯đ
+ଆቆ SPI flashቋնൈᇒ௔ੱູ 80 MHzିbೂླ൐Ⴈ 120
+MHz֥ashླေflashିđ౨ ৳༢໡ૌb
+4flash ᆦӻğ
+- ᇀഒ10 ຣՑщӱ/҈Ԣᇛ௹
+- ᇀഒ20ࡗ
+5֥PSRAMb
+6b
+7ࢫ10.1 ଆቆԄժ
+b
+8ࣇESP32-S3-WROOM-1-N16R16VAބESP32-S3-WROOM-1U-N16R16VA֥VDD_SPI࿢ູ1.8
+Vb
+൞ESP32-S3 ༢ਙ* ྉோbESP32-S3 ༢ਙྉோձᄛXtensa® 32໊LX7ࣚ
+ղ240 MHzbCPUࠇ߄
+ӑԛᚐᆴb
+ඪૼğ
+ႿESP32-S3ྐ༏౨ҕॉ uESP32-S3඀vb
+֥ESP-IDFః෰ྉோϱЧྐ༏đ ౨ҕॉuESP32-S3 ༢ਙྉோा༂іv
+>ࢫྉோϱЧѓ്b
+1.3 ႋႨ
+•ं
+•߄׮
+•ࡲ
+•ሰӁ௖
+•୪ြ
+• POSࠏ
+•ఖದ
+• ၻ௔ഡС
+•ݻۿ֮IoTཌఖ
+•ݻۿ֮IoT੣ఖ
+• ജཞ๨൪௔ੀԮൻ
+• USB ഡС
+• ეၻ്љ
+• ๭ཞ്љ
+• Wi-Fi
++ ড࿩ຩव
+•ႋ
+4
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 5 =====
+ଢ੣
+ଢ੣
+1ඍ 2
+1.1 หྟ 2
+1.2б 3
+1.
+3 ႋႨ 4
+2ିॿ๭ 9
+3ၬ 10
+3.1҃अ 10
+3.2૭ඍ 11
+4஥ᇂཛ 13
+4.1ଆൔ॥ᇅ 14
+4.2 VDD_SPI࿢॥ᇅ 15
+4.3 ROM ರᆽյႆ॥ᇅ 15
+4.4 JTAGჷ॥ᇅ 15
+5 ຓഡ 16
+5.1ඍ 16
+5.2 ຓഡ૭ඍ 16
+5.2.1१ 16
+5.2.1.1 UART ॥ᇅఖ 16
+5.2.1.2 I2C१ 17
+5.2.1.3 I2S१ 18
+5.2.1.4 LCD აCamera ॥ᇅఖ 18
+5.2.1.5१(SPI) 18
+5.2.1.6१(TWAI®) 20
+5.2.1.7 USB 2.0 OTG१ 21
+5.2.1.8 USB Ա१/JTAG ॥ᇅఖ 22
+5.2.1.9 SD/MMC॥ᇅఖ 23
+5.2.1.10 LED PWM ॥ᇅఖ 23
+5.2.1.11ᇅఖ(MCPWM) 24
+5.2.1.12ຓဪ॥(RMT) 24
+5.2.1.13ඔ॥ᇅఖ(PCNT) 25
+5.2.2ԩ৘ 25
+5.2.2.1 SAR ADC 25
+5.2.2.2ఖ 26
+5.2.2.3ఖ 26
+6గหྟ 27
+6.1ᆴ 27
+6.2ࡱ27
+6.3గหྟ(3.3 V, 25 °C) 27
+5
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 6 =====
+ଢ੣
+6.4หྟ 28
+6.4.1
+Activeݻۿ֥28
+6.4.2ݻۿ֥28
+7 ഝ௔หྟ 30
+7.1 Wi-Fi ഝ௔ 30
+7.1.1 Wi-Fiഝఖ(TX) หྟ 30
+7.1.2 Wi-Fi൬ఖ(RX) หྟ 31
+7.2ড࿩ഝ௔ 32
+7.2.1ഝఖ(TX) หྟ 32
+7.2.2൬ఖ(RX) หྟ 34
+8 ଆቆჰ৘๭ 36
+9ჰ৘๭ 38
+10۬ܿ39
+10.1 ଆቆԄժ 39
+10.2ఖԄժ 40
+11 PCBၰ 41
+11.1 PCBል๭ྙ 41
+11.2 PCBଆቆ໊ᇂϥ٢ 42
+12 Ӂ௖ԩ৘ 43
+12.1ࡱ43
+12.2׈٢׈࣡ESD) 43
+12.3౷ཌ 43
+12.4׮44
+ሧჷ 45
+৥ൎ 46
+࠯6
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 7 =====
+۬
+۬
+1 ESP32-S3-WROOM-1б1 3
+2 ESP3
+2-S3-WROOM-1Uб 3
+3ၬ 11
+4 Strappingଏಪ஥ᇂ 13
+5 Strappingൈ྽ҕඔඪૼ 14
+6ଆൔ॥ᇅ 14
+7 VDD_SPI࿢॥ᇅ 15
+8 JTAGჷ॥ᇅ 15
+9ᆴ 27
+10ࡱ27
+11గหྟ(3.3 V, 25 °C) 27
+12 Activeݻۿ28
+13 Modem-sleepݻۿ֥29
+14ݻۿ֥29
+15 Wi-Fi۬ܿ30
+16ބEVMކژ802.11ੱ 30
+17ഝEVM ҩ൫1 30
+18؇31
+19௜ 31
+20ၝᇅ 32
+21۬ܿ32
+22ড࿩-ഝఖหྟ- 1 Mbps 32
+23ড࿩-ഝఖหྟ- 2 Mbps 33
+24ড࿩-ഝఖหྟ- 125 Kbps 33
+25ড࿩-ഝఖหྟ- 500 Kbps 33
+26ড࿩-൬ఖหྟ- 1 Mbps 34
+27ড࿩-൬ఖหྟ- 2 Mbps 34
+28ড࿩-൬ఖหྟ- 125 Kbps 35
+29ড࿩-൬ఖหྟ- 500 Kbps 35
+࠯7
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 8 =====
+Ҭ๭
+Ҭ๭
+1 ESP32-S3-WROOM-1ିॿ๭ 9
+2 ESP3
+2-S3-WROOM-1Uିॿ๭ 9
+3൪๭Ď 10
+4 Strappingൈ྽ҕඔ๭ 14
+5 ESP32-S3-WROOM-1 ჰ৘๭ 36
+6 ESP32-S3-WROOM-1U ჰ৘๭ 37
+7ჰ৘๭ 38
+8 ESP32-S3-WROOM-1 ଆቆԄժ 39
+9 ESP32-S3-WROOM-1U ଆቆԄժ 39
+10ఖԄժ๭ 40
+11 ESP32-S3-WROOM-1ࡩPCBል๭ 41
+12 ESP32-S3-WROOM-1UࡩPCBል๭ 42
+13౷ཌ 43
+࠯8
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 9 =====
+2ିॿ๭
+2ିॿ๭
+ESP32-S3
+ESP32-S3R2
+ESP32-S3R8
+ESP32-S3R16V
+RF Matching
+40 MHz
+Crystal3V3
+ESP32-S3-WROOM-1U
+EN GPIOs
+Antenna
+RF Matching
+40 MHz
+Crystal3V3
+ESP32-S3-WROOM-1
+EN GPIOs
+Antenna
+QSPI FlashSPICS0
+SPICLK
+SPID
+SPIQ
+SPIHD
+SPIWP
+VDD_SPI
+QSPI FlashSPICS0
+SPICLK
+SPID
+SPIQ
+SPIHD
+SPIWP
+VDD_SPI
+PSRAM(opt.)
+(QSPI/OSPI)
+PSRAM(opt.)
+(QSPI/OSPI)
+ESP32-S3
+ESP32-S3R2
+ESP32-S3R8
+ESP32-S3R16V
+๭ 1: ESP32-S3-WROOM-1ିॿ๭
+ESP32-S3
+ESP32-S3R2
+ESP32-S3R8
+ESP32-S3R16V
+RF Matching
+40 MHz
+Crystal3V3
+ESP32-S3-WROOM-1U
+EN GPIOs
+Antenna
+RF Matching
+40 MHz
+Crystal3V3
+ESP32-S3-WROOM-1
+EN GPIOs
+Antenna
+QSPI FlashSPICS0
+SPICLK
+SPID
+SPIQ
+SPIHD
+SPIWP
+VDD_SPI
+QSPI FlashSPICS0
+SPICLK
+SPID
+SPIQ
+SPIHD
+SPIWP
+VDD_SPI
+PSRAM(opt.)
+(QSPI/OSPI)
+PSRAM(opt.)
+(QSPI/OSPI)
+ESP32-S3
+ESP32-S3R2
+ESP32-S3R8
+ESP32-S3R16V
+๭ 2: ESP32-S3-WROOM-1Uିॿ๭
+࠯9
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 10 =====
+3ၬ
+3ၬ
+3. 1҃अ
+҃अ౨ҕॉ๭10.1 ଆቆԄժ
+b
+GND
+3V3
+EN
+IO4
+IO5
+IO6
+IO7
+IO20
+40
+39
+38
+37
+36
+35
+34
+33
+32
+31
+30
+29
+28
+27
+GND
+IO1
+IO2
+TXD0
+RXD0
+IO42
+IO41
+IO40
+IO39
+IO38
+IO37
+IO36
+IO35
+IO0
+41
+GND
+Keepout Zone
+GND
+GND GND GND
+GND
+GND GND GND
+18
+19
+20
+IO10
+IO11
+IO12
+21
+22
+23
+IO13
+IO14
+IO21
+15
+16
+17
+IO3
+IO46
+IO9
+24
+25
+26
+IO47
+IO48
+IO45
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+IO15
+IO16
+IO17
+IO18
+IO8
+IO19
+๭ 3:൪๭Ď
+ඪૼ Ağ
+ESP32-S3-WROOM-1U҃अაESP32-S3-WROOM-1ॢ౵b
+ྐ༏đ౨Ұु uESP32-S3ᆷଲv>ࢫ໊ᇂϥ٢b
+࠯10
+࡮
+ESP32-S3-WROOM-1 & WROOM-1U඀v1
+.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 11 =====
+3ၬ
+3.2૭ඍ
+Ⴕ41і3ၬb
+஥౨ҕॉ uESP32-S3඀vb
+і 3:ၬ
+଀ӫݼো྘ aି
+GND 1 Pֹࢤ
+3V3 2 P׈܂
+EN 3 I
+௜ğྉோ൐ିĠ
+оĠ
+ᇿၩ҂ିಞENॢb
+IO4 4 I/O/T RTC_GPIO4, GPIO4
+, TOUCH4, ADC1_CH3
+IO5 5 I/O/T RTC_GPIO5, GPIO5
+, TOUCH5, ADC1_CH4
+IO6 6 I/O/T RTC_GPIO6, GPIO6
+, TOUCH6, ADC1_CH5
+IO7 7 I/O/T RTC_GPIO
+7,GPIO7, TOUCH7, ADC1_CH6
+IO15 8 I/O/T RTC_GPIO15, GPIO15
+, U0RTS, ADC2_CH4, XTAL_32K_P
+IO16 9 I/O/T RTC_GPIO16, GPIO16
+, U0CTS, ADC2_CH5, XTAL_32K_N
+IO17 10 I/O/T RTC_GPIO1
+7,GPIO17, U1TXD, ADC2_CH6
+IO18 11 I/O/T RTC_GPIO18, GPIO18
+, U1RXD, ADC2_CH7, CLK_OUT3
+IO8 12 I/O/T RTC_GPIO8, GPIO8
+, TOUCH8, ADC1_CH7, SUBSPICS1
+IO19 13 I/O/T RTC_GPIO19
+, GPIO19, U1RTS, ADC2_CH8, CLK_OUT2,USB_D-
+IO20 14 I/O/T RTC_GPIO2
+0, GPIO20, U1CTS, ADC2_CH9, CLK_OUT1,USB_D+
+IO3 15 I/O/T RTC_GPIO3
+, GPIO3, TOUCH3, ADC1_CH2
+IO46 16 I/O/T GPIO46
+IO9 17 I/O/T RTC_GPIO9
+, GPIO9, TOUCH9, ADC1_CH8, FSPIHD, SUBSPIHD
+IO10 18 I/O/T RTC_GPIO10
+, GPIO10, TOUCH10, ADC1_CH9, FSPICS0, FSPIIO4,
+SUBSPICS0
+IO11 19 I/O/T RTC_GPIO1
+1, GPIO11, TOUCH11, ADC2_CH0, FSPID, FSPIIO5, SUBSPID
+IO12 20 I/O/T RTC_GPIO1
+2, GPIO12, TOUCH12, ADC2_CH1, FSPICLK, FSPIIO6,
+SUBSPICLK
+IO13 21 I/O/T RTC_GPIO1
+3, GPIO13, TOUCH13, ADC2_CH2, FSPIQ, FSPIIO7, SUBSPIQ
+IO14 22 I/O/T RTC_GPIO14, GPIO14
+, TOUCH14, ADC2_CH3, FSPIWP, FSPIDQS,
+SUBSPIWP
+IO21 23 I/O/T RTC_GPIO2
+1, GPIO21
+IO47 c 24 I/O/T SPICLK_P_DIFF, GPIO47, SUBSPICLK_P_DIFF
+IO48 c 25 I/O/T SPICLK_N_DIFF, GPIO48, SUBSPICLK_N_DIFF
+IO45 26 I/O/T GPIO45
+IO0 27 I/O/T RTC_GPIO0
+, GPIO0
+IO35 b 28 I/O/T SPIIO6, GPIO35, FSPID,
+SUBSPID
+IO36 b 29 I/O/T SPIIO7,GPIO36,
+FSPICLK, SUBSPICLK
+IO37 b 30 I/O/T SPIDQS, GPIO37,
+FSPIQ, SUBSPIQ
+IO38 31 I/O/T GPIO38, FSPIWP,
+SUBSPIWP
+༯်
+࠯11
+࡮
+ESP32-S3-WROOM-1 &
+WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 12 =====
+3ၬ
+і 3 –ഈ်
+଀ӫݼো྘ aି
+IO39 32 I/O/
+T MTCK, GPIO3
+9, CLK_OUT3, SUBSPICS1
+IO40 33 I/O/
+T MTDO, GPIO40
+, CLK_OUT2
+IO41 34 I/O/
+T MTDI, GPIO41
+, CLK_OUT1
+IO42 35 I/O/
+T MTMS, GPIO42
+RXD0 36 I/O/
+T U0RXD, GPIO44, CLK_
+OUT2
+TXD0 37 I/O/
+T U0TXD,
+GPIO43, CLK_OUT1
+IO2 38 I/O/
+T RTC_
+GPIO2, GPIO2, TOUCH2, ADC1_CH1
+IO1 39 I/O/
+T RTC_
+GPIO1, GPIO1, TOUCH1, ADC1_CH0
+GND 40 Pֹࢤ
+EPAD 41 Pֹࢤ
+a PჷĠ
+IğൻೆĠOğൻԛĠT࢖ܵ28 ∼ 30֥
+ିႮeFuseb
+bӮOctal SPI PSRAMଽᇂྉோູESP32-S3R8ࠇESP32-S3R16V࢖ܵIO35a
+IO36aIO37֥Octal SPI PSRAMିb
+c ᄝଽᇂྉோູ ESP32-S3R16VଆቆᇏđႮႿ ESP32-S3R16V֥VDD_SPI࿢ၘഡᇂູ 1.8
+Vđ෮ၛđ҂๝Ⴟః෰GPIOđVDD_SPI֥GPIO47ބGPIO48࿢္ູ1.8 Vb
+࠯12
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 13 =====
+4஥ᇂཛ
+4஥ᇂཛ
+ඪૼğ
+ၛ༯ଽಸᅋሱ uESP32-S3඀v>ࢫ஥ᇂཛb
+ྉோStrapping༢đ ॖ
+ࢫ8 ଆቆჰ৘๭b
+ݖStr
+appingބ࢖ܵeFuseҕაğ
+•ଆൔ
+– StrappingğGPIO0ބGPIO46
+• VDD_SPI࿢
+– StrappingğGPIO45
+– eFuse ҕඔğEFUSE_VDD_SPI_FORCEބEFUSE_VDD_SPI_TIEH
+• ROM ರᆽյႆ
+– StrappingğGPIO46
+– eFuse ҕඔğEFUSE_UART_PRINT_CONTROLބEFUSE_DIS_USB_SERIAL_JTAG_ROM_PRINT
+• JT AGჷ
+– StrappingğGPIO3
+– eFuse ҕඔğEFUSE_DIS_PAD_JTAGaEFUSE_DIS_USB_JTAGބEFUSE_STRAP_JTAG_SEL
+ഈඍeFuseଏಪᆴनູ0beFuse ᆺିഎཿ၂Ցđ ၂֊എཿູ1ູ0b
+എཿeFuseྐ༏đ౨ҕॉ uESP32-S3ඌҕॉ൭Ҩv>ࢫeFuse ॥ᇅఖ
+b
+ഈඍstrapping௜ᆴĎ౼थႿ
+ଽ҆೐ഈঘ/ሑ෿b
+і 4: Strappingଏಪ஥ᇂ
+Strapping࢖ܵଏಪ஥ᇂ ᆴ
+GPIO0 ೐ഈঘ 1
+GPIO3ॢ –
+GPIO45 ೐༯ঘ 0
+GPIO46 ೐༯ঘ 0
+эstrappingᆴđ
+ຓ҆༯ঘ/ݔESP32-S3ࠏMCUՖഡСđstrapping
+ࠏMCU ॥ᇅb
+෮Ⴕ strapping໊ൈđ෭թఖҐဢѩթԥཌྷႋ strappingו
+bၹՎđstrapping౼đstrapping
+ቔູ௴๙IO൐Ⴈb
+Strappingൈ྽ླ቎࿖і5๭4֥ࡗބࡗb
+࠯13
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 14 =====
+4஥ᇂཛ
+і 5: Str appingൈ྽ҕඔඪૼ
+ҕඔ ඪૼ ቋཬᆴ (ms)
+tSU
+ࡗۚCHIP_PU֥
+ࡗ0
+tH
+Ќӻൈ
+ࡗࠧCHIP_PUastrappingэູ௴๙ IO࢖ܵ
+౼strappingࡗ3
+Strapping pin
+VIL_nRST
+VIH
+tSU tH
+CHIP_PU
+๭ 4: Str
+appingൈ྽ҕඔ๭
+4. 1ଆൔ॥ᇅ
+đGPIO0ބGPIO46і6ଆൔ॥ᇅb
+і 6:ଆൔ॥ᇅ
+ଆൔ GPIO0 GPIO46
+SPI Bo
+ot 1 ಩ၩᆴ
+Joint Do
+wnload Boot2 0 0
+1ՙଏಪ஥ᇂb
+2Joint Do
+wnload Bootଆൔ༯ᆦӻၛ༯༯ᄛ
+ൔğ
+•USB Download Bootğ
+–USB-Serial-JTAG Download Boot
+–USB-OTG Download Boot
+•UART Download Boot
+ᄝSPI Bootଆൔ༯đROMՖSPI flash༢๤b
+ᄝ Joint Download BootݖUSBࠇUART0༯ᄛᇀ flashࡱ
+༯ᄛᇀSRAM ѩᄎྛSRAMӱ྽b
+ԢਔSPIBootބJointDownloadBoot ଆൔđESP32-S3ᆦӻSPIDownloadBoot࡮uESP32-S3ඌҕॉ൭Ҩv
+>ࢫྉோ Boo
+t ॥ᇅb
+࠯14
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 15 =====
+4஥ᇂཛ
+4.2 VDD_ SPI࿢॥ᇅ
+ൔđऎุ౼थႿEFUSE_VDD_SPI_FORCEᆴb
+і 7: VDD_SPI࿢॥ᇅ
+VDD_SPIჷ 2࿢ EFUSE_ VDD_SPI_F
+ORCE GPIO45 EFUSE_ VDD_SPI_
+TIEH
+VDD3P3_RTCݖRS
+P I׈܂3.3
+V 0 0੻Flash ໗࿢ఖ 1.8 V 1
+Flash ໗࿢ఖ 1.8 V 1੻ 0
+VDD3P3_RTCݖRS
+P I׈܂3.3
+V 1
+1ՙଏಪ஥ᇂb
+2ࢫuESP32-S3඀v>ࢫ৘b
+4
+.3 ROM ರᆽյႆ॥ᇅ
+ӱᇏđROM ս઒ರᆽॖյႆᇀğ
+•čଏಪĎUART0ބUSB Ա१/JT AG॥ᇅఖ
+• USB Ա१/JTAG ॥ᇅఖ
+• UART0
+ބeFuseо UARTބUSB Ա१/JTAG֥ROMିbབྷ༥ྐ༏౨
+ҕॉ uESP32-S3ඌҕॉ൭Ҩv>ࢫྉோ Boo
+t ॥ᇅb
+4.4 JT AGჷ॥ᇅ
+đGPIO3 ॖႨႿ॥ᇅ JTAGቅđstrappingᆴсྶႮ҂
+ਫ਼॥ᇅb
+ೂі 8 ෮ൕđGPIO3 ა EFUSE_DIS_PAD_JTAGaEFUSE_DIS_USB_JTAGބEFUSE_STRAP_JTAG_SEL๝॥
+ᇅJTAGჷb
+і 8: JT AGჷ॥ᇅ
+JT AGჷ EFUSE_DIS_PAD_JT A
+G EFUSE_DIS_USB_JT A
+G EFUSE_STRAP_JT
+AG_SEL GPIO3
+USB Ա१/ JT A
+G ॥ᇅఖ
+0 0 0੻
+0 0 1 1
+1 0੻੻
+JTAG࢖ܵ2 0 0 1 0
+0 1੻੻
+JTAGо 1 1੻੻
+1ՙଏಪ஥ᇂb
+2ࠧMTDIaMTCKa
+MTMSބMTDOb
+࠯15
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 16 =====
+5 ຓഡ
+5 ຓഡ
+5. 1ඍ
+ESP32-S3ຓഡđ
+ЇওSPIaLCDaCamera१aUARTaI2CaI2SඔఖaLED
+PWMaUSB Ա१/JTAGaMCPWMaSD/MMC॥ᇅఖaTWAI®ಸISO11898-1ࠧCANٓܿ2.0Ď a
+ADCఖbՎຓđESP32-S3Ⴕ၂۱ಆ෎ USB 2.0 On-The-Go (OTG)१ႨႿ USB ๙
+࿟b
+བྷ༥ྐ༏đ౨ҕॉuESP32-S3඀v>ࢫି૭ඍb
+ඪૼğ
+ၛ༯ଽಸԛሱ uESP32-S3඀v>ࢫຓഡb
+ѩ٤෮ႵIOᄝଆቆഈႄԛđ ၹՎᆃུྐ༏҂ປ
+ಆൡႨႿESP32-S3-WROOM-1ࠣESP32-S3-WROOM-1Ub
+ྐ༏đॖҕॉuESP32-S3ඌҕॉ൭Ҩv>ࢫGPIOਙіb
+5.2 ຓഡ૭ඍ
+ఖb
+5.2.
+1१
+१b
+5.2. 1
+. 1 UART ॥ᇅఖ
+ESP32-S3 Ⴕ೘۱UARTࠧUART0aUART1aUART2đ ᆦӻၳ҄๙ྐ čRS232ބRS485Ď
+ބIrDA֞5 Mbpsb
+หྟ
+•ൈᇒჷ
+•ѯหੱ
+• ೘۱UARTෂFIFO൬FIFOཚ1024 x 8-bit RAM
+•ၳ҄๙ྐ
+•ି
+• ᆦӻ5/6/7/8؇
+•ᆦӻ1/1.5/2/3 ۱๔ᆸ໊
+• ᆦӻఅ୽཮ဒ໊
+• ᆦӻAT_CMDҩ
+• ᆦӻRS485 ླྀၰ
+• ᆦӻIrDA ླྀၰ
+• ᆦӻGDMA෎ඔऌ๙ྐ
+࠯16
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 17 =====
+5 ຓഡ
+• ᆦӻUARTྜଆൔ
+•ੀ॥
+஥
+• U
+ART0
+–࢖֥ܵݼU0TXDބU0RXDݖIO MUXა GPIO43 ~ GPIO44ݖ
+GPIO಩ၩGPIOb
+–࢖ܵU0RTSބU0CTSݖIO MUX ა GPIO15 ~ GPIO16aRTC_GPIO15 ~ RTC_GPIO16a
+XTAL_32K_PބXTAL_32K_NaSAR ADC2ݖGPIO಩ၩGPIOb
+–࢖ܵU0DTRބU0DSR ॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+• UART1
+–࢖֥ܵݼU1TXDބU1RXDݖIO MUX ა GPIO17 ~ GPIO18aRTC_GPIO17 ~
+RTC_GPIO18aSAR ADC2ݖGPIO಩ၩGPIOb
+–࢖ܵU1RTSބU1CTSݖIO MUX ა GPIO19 ~ GPIO20aRTC_GPIO19 ~ RTC_GPIO20a
+USB_D-ބUSB_D+ࠣSAR ADC2ݖGPIO಩ၩGPIOb
+–࢖ܵU1DTRބU1DSR ॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+• UART2ğॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.2 I2C१
+ESP32-S3 Ⴕਆ۱I2C१ॖၛႨቔI2Cଆൔb
+หྟ
+• ѓሙଆൔ(100 Kbit/s)
+• ॹ෎ଆൔ(400 Kbit/s)
+•ॖղ800 Kbit/sđ֌൳ᇅႿSCLބSDA؇
+•7ބ10 ໊࿙ᆶଆൔ
+•ᆶĎ࿙ᆶଆൔ
+ݖI2C॥ᇅI2C१b
+஥
+I2Cॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+࠯17
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 18 =====
+5 ຓഡ
+5.2. 1. 3 I2S१
+ESP32-S3 Ⴕਆ۱ѓሙI2Sቔđѩ౏ॖФ஥ᇂູI2S
+Աྛ8/16/24/32ඔऌଆൔđᆦӻ௔ੱՖ10 kHz֞40 MHz֥BCK ൈᇒb
+I2S֥DMA ॥ᇅఖb ᆦӻTDMPCM aTDMMSBఊaTDMLSBఊaTDMPhillips aPDM१b
+஥
+I2Sॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.4 LCD ა Camera ॥ᇅఖ
+ESP32-S3֥LCD აCamera֥LCDބCamera ଆॶb
+LCDđఃሹཌ8 ໊ ~16 ໊ѩྛRGBaI8080aMOTO6800ൈᇒ௔
+ੱཬႿ40 MHzbᆦӻRGB565aYUV422aYUV420aYUV411b
+Camerađఃሹཌᆦӻ8 ໊ ~16 ໊DVPൈᇒ௔ੱཬႿ
+40 MHzbᆦӻRGB565aYUV422aYUV420aYUV411b
+஥
+LCD აCameraॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.5१ (SPI)
+ESP32-S3 ऎႵၛ༯SPI१ğ
+• SPI0܂ESP32-S3֥GDMA ॥ᇅఖაCacheልຓflash/PSRAM
+• SPI1܂CPUልຓflash/PSRAM
+• SPI2đ๙ႨSPIݖGDMA஥DMAྛ٠໙
+• SPI3đ๙ႨSPIݖGDMA஥DMAྛ٠໙
+หྟ
+• SPI0ބSPI1ğ
+– ᆦӻSPIaDual SPIaQuad SPIaOctal SPIaQPIބOPI ଆൔ
+– ϖཌSPI ଆൔᆦӻֆПඔऌ෎ੱ(SDR)චПඔऌ෎ੱ(DDR)
+– ൈᇒ௔ੱॖ஥ᇂđϖཌSPI SDR/DDRॖղ120 MHz
+–ູֆ໊
+• SPI2ğ
+࠯18
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 19 =====
+5 ຓഡ
+–ଆൔ
+–ݖGDMA஥DMAྛ٠໙
+– ᆦӻSPIaDual SPIa
+Quad SPIaOctal SPIaQPIބOPI ଆൔ
+–ྟ(CPOL)ཌྷ໊(CPHA) ॖ஥ᇂ
+– ൈᇒ௔ੱॖ஥ᇂ
+–ູֆ໊
+–Ⴕ໊ི(MSB)Ⴕ໊ི(LSB) Ⴊ༵
+–ଆൔ
+*ॖղ80 MHz
+* ϖཌSPIᆦӻֆПඔऌ෎ੱ(SDR)
+*ॖղ80 MHz
+* ϖཌSPIۚ80 MHzۚ40 MHzĎ
+* ऎႵੂ۱SPI_CS৫SPIཌྷ৵
+* CSॖ஥ᇂ
+–ଆൔ
+*ॖղ60 MHz
+*ॖղ60 MHz
+* ϖཌSPIᆦӻֆПඔऌ෎ੱ(SDR)
+• SPI3ğ
+–ଆൔ
+–ݖGDMA஥DMAྛ٠໙
+– ᆦӻSPIaDual SPIaQuad SPIބQPI ଆൔ
+–ྟ(CPOL)ཌྷ໊(CPHA) ॖ஥ᇂ
+– ൈᇒ௔ੱॖ஥ᇂ
+–ູֆ໊
+–Ⴕ໊ི(MSB)Ⴕ໊ི(LSB) Ⴊ༵
+–ଆൔ
+*ॖղ80 MHz
+*ॖղ80 MHz
+* ऎႵ೘۱SPI_CS৫SPIཌྷ৵
+* CSॖ஥ᇂ
+–ଆൔ
+*ॖղ60 MHz
+࠯19
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 20 =====
+5 ຓഡ
+*ॖղ60 MHz
+஥ᇂ
+ඪૼğ
+ᅶ uESP32-S3඀v>ࢫIO MUXି> і IO
+MUXିđҕॉၛ༯SPI१ྐ༏b
+• SPI0/1
+–ݖIO MUXğ
+*१ 4a
+ݖIOMUX აGPIO26 ~GPIO32Ⴈđა 4b ձ஥൐ႨᄝϖཌSPI֮4
+ࠣCLKaCS0aCS1१b
+*१ 4bݖIOMUX აGPIO33 ~GPIO37aSPI१ 4eބ4fႨđ ა4a ձ஥൐ႨᄝϖཌSPI
+ۚ4ࠣDQS१b
+*१ 4dݖIO MUXაGPIO8 ~GPIO14aRTC_GPIO8 ~RTC_GPIO14१aSAR
+ADCࠣSPI१ 4cބ4gႨbᇿၩđ҂ॖ൐ႨSPI2b
+*१ 4eݖIO MUXა GPIO33 ~ GPIO39aJTAG MTCK१aSPI१ 4bބ4fႨđॖᄝ
+SPI0/1ൈ൐Ⴈb
+–ࣜGPIOइᆔğSPI0/1ॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+• SPI2
+–ݖIO MUXğ
+*१ 4cݖIO MUXაGPIO9 ~GPIO14aRTC_GPIO9 ~RTC_GPIO14१aSAR
+ADCࠣSPI१ 4dބ4gႨđႨႿॹ෎SPI֥SPI2१b
+*१ 4fݖIO MUX ა GPIO33 ~ GPIO38aSPI१ 4eބ4bႨđSPI2 ᇶ
+ูսSPI2ݖGPIOइᆔ൐ႨSPI2ၰ൐Ⴈ
+GPIOइᆔb
+*१4gݖIOMUX აGPIO10 ~GPIO14aRTC_GPIO10 ~RTC_GPIO14a ԨଃԮ
+१aSARADCࠣSPI१ 4cބ4dႨđ ϖཌSPI֥ࢤSPI2ཌb
+–ࣜGPIOइᆔğSPI2ॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+• SPI3ݖGPIOइᆔॖ஥ᇂ൐Ⴈ಩ၩGPIOb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.6१ (TWAI®)
+१(Two-WireAutomotiveInterface,TWAI ®)ؿ
+ିbESP32-S3 ջႵ၂۱TWAI ॥ᇅఖb
+หྟ
+•ಸISO 11898-1ླྀၰčCANٓܿ2.0Ď
+•ൔč11 ໊IDൔč29 ໊IDĎ
+• 1 Kbit/s֞1 Mbit/sбหੱ
+࠯20
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 21 =====
+5 ຓഡ
+•ᇕҠቔଆൔğ
+–ቔଆൔ
+–๐ଆൔ
+–ଆൔčԮൻ໭ླಒಪĎ
+• 64൬FIFO
+•ੲఖଆൔĎ
+•ҩაԩ৘ğ
+–ඔఖ
+–ᚐᆴ
+–੣
+–੣
+஥
+TWAIॖၛູ಩ၩGPIO
+ݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.7 USB 2.0 OTG१
+ESP32-S3ಆ෎USB OTGކژUSB 2.0b
+๙Ⴈหྟ
+•෎෎ੱ
+•ླྀഅླྀၰ(HNP)౨౰ླྀၰ(SRP)đनॖቔູAࠇB ഡС
+•෿FIFO (DFIFO)նཬ
+•ᇕթԥఖ٠໙ଆൔ
+– Scatter/Gather DMAଆൔ
+–Ԋ(Buffer) DMAଆൔ
+– Slave ଆൔ
+•ఖ
+•ބUSB Ա१/JTAGఖ
+•ఖ๝ൈ๧ೆ൐ႨൈđᆦӻUSB OTGބUSB Ա१/JTAG ॥ᇅఖਆຓഡ۲ሱ็࿊҂
+ఖ൐Ⴈ
+ഡСଆൔ (Device mode) หྟ
+•ׄ؊0 Ⴅჹթᄝčචཟ॥ᇅđႮEP0 INބEP0 OUTቆӮĎ
+• 6ׄ؊ࡆڸ1 ~6)đॖ஥ᇂູINࠇOUT
+࠯21
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 22 =====
+5 ຓഡ
+•؟5 ۱INቔčЇওEP0 INĎ
+• ෮ႵOUTཚ၂۱RX
+FIFO
+• ૄ۱IN֥TX FIFO
+ଆൔ (Host mode) หྟ
+• 8Ď
+– ႮIN აOUTđၹູINބOUTᆦӻ॥ᇅԮൻো྘b
+– ఃჅ7ॖФ஥ᇂູINࠇOUT಩ၩԮൻো྘b
+•Ⴈ၂۱RX FIFOa၂۱٤ᇛ௹ྟTX FIFO၂۱ᇛ௹ྟTX FIFObૄ۱FIFO նཬॖ஥ᇂb
+஥
+Ӯ PHY ൈđUSB OTG࢖ܵݼUSB_D-ބUSB_D+ݖIO MUX ა GPIO19 ~ GPIO20a
+RTC_GPIO19 ~RTC_GPIO20aUART1ބSAR ADC2Ⴈb
+ࢤPHY ൈđUSB OTGݖIO MUX ა GPIO21aRTC_GPIO21aGPIO38 ~ GPIO42ބSPIگ
+Ⴈğ
+• VP֞ࢤMTMS࢖ܵ
+•VM֞ࢤMTDI࢖ܵ
+•RCV֞ࢤGPIO21࢖ܵ
+•OEN֞ࢤMTDO࢖ܵ
+•VPO֞ࢤMTCK࢖ܵ
+•VMO֞ࢤGPIO38࢖ܵ
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.8 USB Ա१/JT AG॥ᇅఖ
+ESP32-S3Ӯਔ၂۱USB Ա१/JTAG ॥ᇅఖb
+หྟ
+• USB ಆ෎ѓሙ
+• ॖ஥ᇂູ൐ႨESP32-S3 ଽ҆USB PHYݖGPIOइᆔ൐Ⴈຓ҆PHY
+•֥ࢤCDC-ACMބJTAGି
+•܋2 ۱OUTa3 ۱INބׄ؊1ׄ؊EP_0đॖൌགྷቋն64ހ
+•ଽ҆PHYࠏ
+•CDC-ACMႨ
+• JTAG֥JTAG ᆷ਷ൌགྷაCPUॹ෎๙ྐ
+• CDC-ACMೆ༯ᄛଆൔ
+࠯22
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 23 =====
+5 ຓഡ
+஥
+൐Ⴈଽ
+Ӯ PHY ൈđUSB Ա१/JTAG࢖ܵݼUSB_D-ބUSB_D+ݖIO MUXა GPIO19 ~
+GPIO20aRTC_GPIO19 ~RTC_GPIO20aUART1ބSAR ADC2Ⴈb
+ࢤPHY ൈđUSB Ա१/JTAGݖIO MUXაGPIO38 ~GPIO42ބSPIႨğ
+• VP֞ࢤMTMS࢖ܵ
+•VM֞ࢤMTDI࢖ܵ
+•OEN֞ࢤMTDO࢖ܵ
+•VPO֞ࢤMTCK࢖ܵ
+•VMO֞ࢤGPIO38࢖ܵ
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1.9 SD/MMC॥ᇅఖ
+ESP32-S3Ӯ၂۱SD/MMC॥ᇅఖb
+หྟ
+• SD व3.0ބ3.01 ϱЧ
+• SDIO 3.0ϱЧ
+• CE-ATA 1.1ϱЧ
+•ૂุवčMMC 4.41ϱЧaeMMC 4.5ބ4.51 ϱЧĎ
+•ղ80 MHzൈᇒൻԛ
+• 3 ᇕඔऌሹཌଆൔğ
+– 1 ໊
+– 4 ໊čॖᆦӻਆ۱SD/SDIO/MMC 4.41၂۱ၛ1.8 V֥SD वĎ
+– 8 ໊
+஥
+SD/MMCॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1. 10 LED PWM ॥ᇅఖ
+LED PWMඔሳѯྙb
+࠯23
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 24 =====
+5 ຓഡ
+หྟ
+•ᇛ௹ູ1 msॖղ14 ໊
+•ᇕൈᇒჷ࿊ᄴđЇওğAPBᆒൈᇒ
+• ॖᄝLigh
+t-sleepቔ
+•ഒᅝॢбđॖႨႿLED RGBളఖ
+஥
+LED PWMॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1. 11ᇅఖ (MCPWM)
+ESP32-S3ਆ۱MCPWMb ૄ۱MCPWM௔ఖ čყ
+௔ఖĎ a೘۱PWMൈఖa೘۱ PWM၂۱ѽሚଆॶbPWMൈҕॉbPWM Ҡቔ
+஥ᇂđ಩၂PWM Ҡቔఖॖၛ൐Ⴈ಩၂PWMൈҕॉb҂๝
+֥PWM֥PWMൈҕॉটӁള PWM֥PWM Ҡቔఖ္ॖၛ
+֥PWM֥׿PWM֥PWMྛ๝҄b
+஥
+MCPWMॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1. 12ຓဪ॥ (RMT)
+ຓဪ॥(RMT)൬b
+หྟ
+•ෂ
+•൬
+•ෂ
+• RMTཚ384 x 32-bit֥RAM
+•ᇅ
+•טࢳ
+•ෂଆൔ
+•൬ଆൔ
+•ෂ
+•֡3 ᆦӻDMA ٠໙
+࠯24
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 25 =====
+5 ຓഡ
+•֡7 ᆦӻDMA ٠໙
+஥
+RMTॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2. 1. 13ඔ॥ᇅఖ (PCNT)
+ඔఖ(PCNT)ඔb
+หྟ
+•ຶ൞1 ~65535
+•ඔ॥ᇅఖ
+•čೂsig_ch0_unčೂctrl_ch0_unĎ
+•čsig_ch0_unބsig_ch1_unčctrl_ch0_unބ
+ctrl_ch1_unરՏ
+•ҕඔೂ༯ğ
+1.ඔ
+2.ඔ
+஥
+ॖၛູ಩ၩGPIOݖGPIOइᆔ஥ᇂb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+5.2.2ԩ৘
+b
+5.2.2. 1 SAR ADC
+ESP32-S3Ӯਔਆ۱ 12 ໊ SAR ADCᆦӻ20đESP32-S3֥ULP ླྀ
+ྜCPUb
+஥
+SARADCݖIOMUX აGPIO1 ~GPIO20aRTC_GPIO1 ~RTC_GPIO20१aUART१aSPI
+ࠣUSB_D-ބUSB_D+Ⴈb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+࠯25
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 26 =====
+5 ຓഡ
+5.2.2.2ఖ
+࿢bଽ҆ADCູ၂۱ඔሳਈb
+Ԯ
+ຶູ⚶20 °C֞110 °Cෛሢັ॥
+ࠇIOb
+5.2.2.3ఖ
+ESP32-S3ղ 14ۋGPIOಸҵၳb
+ᇏ္ॖၛ൐ႨԨଃϰᆔਙ
+bESP32-S3֥
+ྟିb
+ඪૼğ
+ESP32-S3ҩ൫༢๤(CS)Ⴕ෮ཋᇅb
+஥
+Ԩ
+ଃԮ
+ݖIO MUX ა GPIO1 ~ GPIO14aRTC_GPIO1 ~ RTC_GPIO14aSAR ADCބSPIگ
+Ⴈb
+ྐ༏đ ౨ҕॉuESP32-S3඀v>ࢫIO࢖ܵބ uESP32-S3ඌҕॉ൭Ҩv
+>ࢫIO MUXބGPIOइᆔ
+b
+࠯26
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 27 =====
+6గหྟ
+6గหྟ
+6. 1ᆴ
+ӑԛі9ᆴᆴđ
+༯ӑ
+ԛі 10ࡱॖौ
+ྟb
+і 9:ᆴ
+ݼژҕඔ ቋཬᆴ ቋնᆴ ֆ໊
+VDD33࿢ ⚶0.3 3.6 V
+TST O
+RE؇⚶40 105 °C
+6.2ࡱ
+і 10:ࡱ
+ݼژҕඔ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+VDD33࿢ 3.0 3.3 3.6 V
+IV DDੀ 0.5 — — A
+TA؇
+65 °Cϱ
+⚶40 —
+65
+°C85 °Cϱ 85
+105 °Cϱ 105
+6.3గหྟ (3.
+3 V , 25 °C)
+і 11:గหྟ (3.3 V , 25 °C)
+ݼژҕඔ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+CINಸ — 2 — pF
+VIH࿢ 0.7
+5 × VDD1 — VDD1 + 0.
+3 V
+VIL࿢ ⚶0.3 — 0.25
+× VDD1 V
+IIHੀ — — 50 nA
+IILੀ — — 50 nA
+VOH 2࿢ 0.8 ×
+VDD1 — — V
+VOL2࿢ — — 0.1
+× VDD1 V
+IOH
+ੀ(VDD1 = 3
+.3 V, VOH >= 2.64 V,
+PAD_DRIVER = 3) — 40 — mA
+IOL
+ੀ(VDD1 = 3
+.3 V, VOL = 0.495 V,
+PAD_DRIVER = 3) — 28 — mA
+RP Uቅ — 45 — kΩ
+RP Dቅ — 45 — kΩ
+࠯27
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 28 =====
+6గหྟ
+і 11 –ഈ်
+ݼژҕඔ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+VIH_nR
+ST࿢čENຶĎ 0.7
+5 × VDD1 — VDD1 + 0.
+3 V
+VIL_nR
+ST࿢čENຶĎ ⚶0.3 — 0.25
+× VDD1 V
+1VDD֥I/O࿢b
+2VOHބVOLҩਈᆴb
+6.
+4หྟ
+6.4. 1 Activeݻۿ֥
+࡮
+uESP32-S3֥৘ֆჭb
+Ⴟ3
+.3 Vჷa25 °Cb
+Ⴟ100%b
+оaCPUb
+і 12: Activeݻۿ
+ቔଆൔ ૭ඍᆴ (mA)
+Activ
+eቔĎ
+TX
+802.
+11b, 1 Mbps, @20.5 dBm 355
+802.
+11g, 54 Mbps, @18 dBm 297
+802.
+11n, HT20, MCS7, @17.5 dBm 286
+802.
+11n, HT40, MCS7, @17 dBm 285
+RX 802.
+11b/g/n, HT20 95
+802.
+11n, HT40 97
+ඪૼğ
+ၛ༯ଽಸᅋሱ uESP32-S3඀v>ࢫݻۿ֥b
+6.
+4.2ݻۿ֥
+ልଽႵPSRAM
+Ⴟ༯іඔऌb
+࠯28
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 29 =====
+6గหྟ
+і 13: Mo dem-sleepݻۿ֥
+ቔଆൔ
+௔ੱ
+(MHz) ඪૼ
+྘ᆴ1
+(mA)
+྘ᆴ2
+(mA)
+Modem-sleep3
+40
+WAITIनॢ༽Ď 13.2 18.8
+ᆳྛ32ॢ༽ 16.2 21.8
+ᆳྛ32 ໊ඔऌ٠໙ᆷ਷ 18.7 24.4
+ᆳྛ128ॢ༽ 19.9 25.4
+ᆳྛ128 ໊ඔऌ٠໙ᆷ਷ 23.
+0 28.8
+80
+WAITI 22.0 36.1
+ᆳྛ32ॢ༽ 28.4 42.6
+ᆳྛ32 ໊ඔऌ٠໙ᆷ਷ 33.1 47.
+3
+ᆳྛ128ॢ༽ 35.1 49.
+6
+ᆳྛ128 ໊ඔऌ٠໙ᆷ਷ 41.8 56.3
+160
+WAITI 27.
+6 42.3
+ᆳྛ32ॢ༽ 39.
+9 54.6
+ᆳྛ32 ໊ඔऌ٠໙ᆷ਷ 49.
+6 64.1
+ᆳྛ128ॢ༽ 54.4 69.2
+ᆳྛ128 ໊ඔऌ٠໙ᆷ਷ 66.7 81.
+1
+240
+WAITI 32.9 47.
+6
+ᆳྛ32ॢ༽ 51.2 65.9
+ᆳྛ32 ໊ඔऌ٠໙ᆷ਷ 66.2 81.
+3
+ᆳྛ128ॢ༽ 72.4 87.
+9
+ᆳྛ128 ໊ඔऌ٠໙ᆷ਷ 91.
+7 107.
+9
+1 ෮Ⴕຓഡൈᇒо྘ᆴb
+2 ෮ႵຓഡൈᇒյषႵ෮ҵၳb
+3Modem-sleep ଆൔ༯đWi-Fi ഡႵൈᇒ૊॥b
+ଆൔ༯đ٠໙flashb೏flash ෎ੱູ80 Mbit/sđ
+SPI චཌଆൔ༯flashູ10 mAb
+і 14:ݻۿ֥
+ቔଆൔ ඪૼ྘ᆴ (µA)
+Light-sle
+ep1 VDD_SPIބWi-Fiđ෮ႵGPIOቅሑ෿ 240
+Deep-
+sleep RTCބR
+TC׈8
+RTCđ
+RTC׈ו7
+о CHIP_PUо 1
+1Light-sle
+ep ଆൔ༯đSPIልଽႵPSRAMࠎ֥
+֥PSRAMğ8 MB Octal PSRAM (3.3 V)ູ140 µAĠ8 MB Octal
+PSRAM (1.8 V)ູ200 µAĠ2 MB Quad PSRAMູ40 µAb
+࠯29
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 30 =====
+7 ഝ௔หྟ
+7 ഝ௔หྟ
+ഝ௔หྟіb
+ഝ௔ඔ
+൳
+ຓ҆฿ཌऎႵ50 Ωॖၛ஥ᇂ
+ຶđऎุ౨ҕॉuESP ഝ௔ҩ൫ᆷଲvb
+Ԣ٤หљඪૼđഝ௔ҩ൫न൞ᄝ3.3
+V (±5%)ჷa25 °C༯ປӮb
+7 . 1 Wi-Fi ഝ௔
+і 15: Wi-Fi۬ܿ
+଀ӫ ૭ඍ
+ຶ 241
+2 ~2484 MHz
+໭ཌѓሙ IEEE 80
+2.11b/g/n
+7 . 1
+. 1 Wi-Fiഝఖ (TX) หྟ
+і 16:ބEVMކژ802. 11ੱ
+ቋཬᆴ྘ᆴ ቋնᆴ෎ੱ (dBm
+) (dBm
+) (dBm
+)
+802.
+11b, 1 Mbps — 20.
+5 —
+802.
+11b, 11 Mbps — 20.
+5 —
+802.
+11g, 6 Mbps — 20.
+0 —
+802.
+11g, 54 Mbps — 18.0 —
+802.
+11n, HT20, MCS 0 — 19.0 —
+802.
+11n, HT20, MCS 7 — 17.
+5 —
+802.
+11n, HT40, MCS 0 — 18.5 —
+802.
+11n, HT40, MCS 7 — 17.
+0 —
+і 17:ഝ EVM ҩ൫1
+ቋཬᆴ྘ᆴ ѓሙཋᆴ෎ੱ (dB) (dB) (dB)
+802
+.11b, 1 Mbps, @20.5 dBm — ⚶24.5 ⚶10
+802
+.11b, 11 Mbps, @20.5 dBm — ⚶24.5 ⚶10
+802
+.11g, 6 Mbps, @20 dBm — ⚶23.
+0 ⚶5
+802
+.11g, 54 Mbps, @18 dBm — ⚶29.
+5 ⚶25
+802
+.11n, HT20, MCS 0, @19 dBm — ⚶24.0 ⚶5
+802
+.11n, HT20, MCS 7, @17.5 dBm — ⚶30.5 ⚶27
+802
+.11n, HT40, MCS 0, @18.5 dBm — ⚶25.0 ⚶5
+802
+.11n, HT40, MCS 7, @17 dBm — ⚶30.0 ⚶27
+1ഝ EVMૄ
+ੱູі 16ބEVMژ
+ކ802. 11ੱ྘ᆴb
+࠯30
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 31 =====
+7 ഝ௔หྟ
+7 . 1.2 Wi-Fi൬ఖ (RX) หྟ
+802.11b༂Їੱ(PER)ݖ8%đ802.11g/nݖ10%b
+і 18:؇
+ቋཬᆴ྘ᆴ ቋնᆴ෎ੱ (dBm
+) (dBm
+) (dBm
+)
+802.
+11b, 1 Mbps — ⚶98.2 —
+802.
+11b, 2 Mbps — ⚶95.6 —
+802.
+11b, 5.5 Mbps — ⚶92.8 —
+802.
+11b, 11 Mbps — ⚶88.5 —
+802.
+11g, 6 Mbps — ⚶93.
+0 —
+802.
+11g, 9 Mbps — ⚶92.0 —
+802.
+11g, 12 Mbps — ⚶90.8 —
+802.
+11g, 18 Mbps — ⚶88.5 —
+802.
+11g, 24 Mbps — ⚶85.5 —
+802.
+11g, 36 Mbps — ⚶82.2 —
+802.
+11g, 48 Mbps — ⚶78.0 —
+802.
+11g, 54 Mbps — ⚶76.2 —
+802.
+11n, HT20, MCS 0 — ⚶93.
+0 —
+802.
+11n, HT20, MCS 1 — ⚶90.6 —
+802.
+11n, HT20, MCS 2 — ⚶88.4 —
+802.
+11n, HT20, MCS 3 — ⚶84.8 —
+802.
+11n, HT20, MCS 4 — ⚶81.
+6 —
+802.
+11n, HT20, MCS 5 — ⚶77.4 —
+802.
+11n, HT20, MCS 6 — ⚶75.6 —
+802.
+11n, HT20, MCS 7 — ⚶74.2 —
+802.
+11n, HT40, MCS 0 — ⚶90.0 —
+802.
+11n, HT40, MCS 1 — ⚶87.
+5 —
+802.
+11n, HT40, MCS 2 — ⚶85.0 —
+802.
+11n, HT40, MCS 3 — ⚶82.0 —
+802.
+11n, HT40, MCS 4 — ⚶78.5 —
+802.
+11n, HT40, MCS 5 — ⚶74.4 —
+802.
+11n, HT40, MCS 6 — ⚶72.5 —
+802.
+11n, HT40, MCS 7 — ⚶71.2 —
+і 19:௜
+ቋཬᆴ྘ᆴ ቋնᆴ෎ੱ (dBm
+) (dBm
+) (dBm
+)
+802.
+11b, 1 Mbps — 5 —
+802.
+11b, 11 Mbps — 5 —
+802.
+11g, 6 Mbps — 5 —
+802.
+11g, 54 Mbps — 0 —
+༯်
+࠯31
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 32 =====
+7 ഝ௔หྟ
+і 19 –ഈ်
+ቋཬᆴ྘ᆴ ቋնᆴ෎ੱ (dBm
+) (dBm
+) (dBm
+)
+802.
+11n, HT20, MCS 0 — 5 —
+802.
+11n, HT20, MCS 7 — 0 —
+802.
+11n, HT40, MCS 0 — 5 —
+802.
+11n, HT40, MCS 7 — 0 —
+і 20:ၝᇅ
+ቋཬᆴ྘ᆴ ቋնᆴ෎ੱ (dB) (dB) (dB)
+802.
+11b, 1 Mbps — 35 —
+802.
+11b, 11 Mbps — 35 —
+802.
+11g, 6 Mbps — 31 —
+802.
+11g, 54 Mbps — 14 —
+802.
+11n, HT20, MCS 0 — 31 —
+802.
+11n, HT20, MCS 7 — 13 —
+802.
+11n, HT40, MCS 0 — 19 —
+802.
+11n, HT40, MCS 7 — 8 —
+7 .2ড࿩ഝ௔
+і 21:۬ܿ
+଀ӫ ૭ඍ
+ຶ 240
+2 ~2480 MHz
+ຶ ⚶24.0 ~2
+0.0 dBm
+7 .2. 1ഝఖ (
+TX) หྟ
+і 22:ড࿩ -ഝఖหྟ - 1 Mbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+௎၍
+|fn|n=0, 1, 2, ..k ቋնᆴ — 2.50 — kHz
+|f0 − fn| ቋնᆴ — 2.00 — kHz
+|fn − fn−5| ቋնᆴ — 1.4
+0 — kHz
+|f1 − f0| — 1.00 — kHz
+ᇅหྟ
+∆ f 1avg — 249
+.00 — kHz
+∆ f 2max ቋཬᆴ
+čᇀഒ99
+.9%֥∆ f 2maxĎ — 198.00 — kHz
+∆ f 2avg/
+∆ f 1avg — 0.86 — —
+ഝ
+± 2 MHzொ၍ — ⚶37.
+00 — dBm
+± 3 MHzொ၍ — ⚶42.00 — dBm
+> ± 3
+MHz ொ၍ — ⚶44.00 — dBm
+࠯32
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 33 =====
+7 ഝ௔หྟ
+і 23:ড࿩ -ഝఖหྟ - 2
+Mbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+௎၍
+|fn|n=0, 1, 2, ..k ቋնᆴ — 2.50 — kHz
+|f0 − fn| ቋնᆴ — 2.00 — kHz
+|fn − fn−5| ቋնᆴ — 1.4
+0 — kHz
+|f1 − f0| — 1.00 — kHz
+ᇅหྟ
+∆ f 1avg — 499
+.00 — kHz
+∆ f 2max ቋཬᆴ
+čᇀഒ99
+.9%֥∆ f 2maxĎ — 416.00 — kHz
+∆ f 2avg/
+∆ f 1avg — 0.89 — —
+ഝ
+± 4 MHzொ၍ — ⚶42.00 — dBm
+± 5 MHzொ၍ — ⚶44.00 — dBm
+> ± 5
+MHz ொ၍ — ⚶47.
+00 — dBm
+і 24:ড࿩ -ഝఖหྟ - 1
+25 Kbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+௎၍
+|fn|n=0, 1, 2, ..k ቋնᆴ — 0.80 — kHz
+|f0 − fn| ቋնᆴ — 1.00 — kHz
+|fn − fn−3| — 0.30 — kHz
+|f0 − f3| — 1.00 — kHz
+ᇅหྟ
+∆ f 1avg — 248.00 — kHz
+∆ f 1max ቋཬᆴ
+čᇀഒ99
+.9%֥∆ f 1maxĎ — 222.
+00 — kHz
+ഝ
+± 2 MHzொ၍ — ⚶37.
+00 — dBm
+± 3 MHzொ၍ — ⚶42.00 — dBm
+> ± 3
+MHz ொ၍ — ⚶44.00 — dBm
+і 25:ড࿩ -ഝఖหྟ - 500
+Kbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+௎၍
+|fn|n=0, 1, 2, ..k ቋնᆴ — 0.80 — kHz
+|f0 − fn| ቋնᆴ — 1.00 — kHz
+|fn − fn−3| — 0.85 — kHz
+|f0 − f3| — 0.34 — kHz
+ᇅหྟ
+∆ f 2avg — 213
+.00 — kHz
+∆ f 2max ቋཬᆴ
+čᇀഒ99
+.9%֥∆ f 2maxĎ — 196.00 — kHz
+ഝ
+± 2 MHzொ၍ — ⚶37.
+00 — dBm
+± 3 MHzொ၍ — ⚶42.00 — dBm
+> ± 3
+MHz ொ၍ — ⚶44.00 — dBm
+࠯33
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 34 =====
+7 ഝ௔หྟ
+7 .2.2൬ఖ (RX ) หྟ
+і 26:ড࿩ -൬ఖหྟ - 1 Mbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+؇30.8% PER — — ⚶96.5 — dBm
+ݼ30.8% PER — — 8 — dBm
+ၝᇅбC/I F = F0
+MHz — 8 — dB
+࿊ᄴྟၝᇅбC/I
+F = F0
++ 1 MHz — 4 — dB
+F = F0
+– 1 MHz — 4 — dB
+F = F0
++ 2 MHz — ⚶23 — dB
+F = F0
+– 2 MHz — ⚶23 — dB
+F = F0
++ 3 MHz — ⚶34 — dB
+F = F0
+– 3 MHz — ⚶34 — dB
+F >F0 + 3
+MHz — ⚶36 — dB
+F >F0 – 3
+MHz — ⚶37 — dB
+ཞ௔ੱ — — ⚶36 — dB
+ಠ F = Fimag
+e + 1 MHz — ⚶39 — dB
+F = Fimag
+e – 1 MHz — ⚶34 — dB
+ջຓቅೖ
+30 MHz~2000
+MHz — ⚶12 — dBm
+2003
+MHz ~2399 MHz — ⚶18 — dBm
+2484 MHz~2
+997 MHz — ⚶16 — dBm
+3000 MHz~12.
+75 GHz — ⚶10 — dBm
+ט޺— —⚶29 — dBm
+і 27:ড࿩ -൬ఖหྟ - 2
+Mbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+؇30.8% PER — — ⚶92 — dBm
+ݼ30.8% PER — — 3 — dBm
+ಠC/I F = F0
+MHz — 8 — dB
+࿊ᄴྟၝᇅбC/I
+F = F0
++ 2 MHz — 4 — dB
+F = F0
+– 2 MHz — 4 — dB
+F = F0
++ 4 MHz — ⚶27 — dB
+F = F0
+– 4 MHz — ⚶27 — dB
+F = F0
++ 6 MHz — ⚶38 — dB
+F = F0
+– 6 MHz — ⚶38 — dB
+F >F0 + 6
+MHz — ⚶41 — dB
+F >F0 – 6
+MHz — ⚶41 — dB
+ཞ௔ੱ — — ⚶27 — dB
+ಠ F = Fimag
+e + 2 MHz — ⚶38 — dB
+F = Fimag
+e – 2 MHz — 4 — dB
+ջຓቅೖ
+30 MHz~2000
+MHz — ⚶15 — dBm
+2003
+MHz ~2399 MHz — ⚶21 — dBm
+2484 MHz~2
+997 MHz — ⚶21 — dBm
+༯်
+࠯34
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 35 =====
+7 ഝ௔หྟ
+і 27 –ഈ်
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+3000 MHz~12.
+75 GHz — ⚶9 — dBm
+ט޺— —⚶29 — dBm
+і 28:ড࿩ -൬ఖหྟ - 1
+25 Kbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+؇30.8% PER — — ⚶103.
+5 — dBm
+ݼ30.8% PER — — 8 — dBm
+ၝᇅбC/I F = F0
+MHz — 4 — dB
+࿊ᄴྟၝᇅбC/I
+F = F0
++ 1 MHz — 1 — dB
+F = F0
+– 1 MHz — 2 — dB
+F = F0
++ 2 MHz — ⚶26 — dB
+F = F0
+– 2 MHz — ⚶26 — dB
+F = F0
++ 3 MHz — ⚶36 — dB
+F = F0
+– 3 MHz — ⚶39 — dB
+F >F0 + 3
+MHz — ⚶42 — dB
+F >F0 – 3
+MHz — ⚶43 — dB
+ཞ௔ੱ — — ⚶42 — dB
+ಠ F = Fimag
+e + 1 MHz — ⚶43 — dB
+F = Fimag
+e – 1 MHz — ⚶36 — dB
+і 29:ড࿩ -൬ఖหྟ - 500
+Kbps
+ҕඔ ૭ඍ ቋཬᆴ྘ᆴ ቋնᆴ ֆ໊
+؇30.8% PER — — ⚶100 — dBm
+ݼ30.8% PER — — 8 — dBm
+ၝᇅбC/I F = F0
+MHz — 4 — dB
+࿊ᄴྟၝᇅбC/I
+F = F0
++ 1 MHz — 1 — dB
+F = F0
+– 1 MHz — 0 — dB
+F = F0
++ 2 MHz — ⚶24 — dB
+F = F0
+– 2 MHz — ⚶24 — dB
+F = F0
++ 3 MHz — ⚶37 — dB
+F = F0
+– 3 MHz — ⚶39 — dB
+F >F0 + 3
+MHz — ⚶38 — dB
+F >F0 – 3
+MHz — ⚶42 — dB
+ཞ௔ੱ — — ⚶38 — dB
+ಠ F = Fimag
+e + 1 MHz — ⚶42 — dB
+F = Fimag
+e – 1 MHz — ⚶37 — dB
+࠯35
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 36 =====
+8 ଆቆჰ৘๭8 ଆቆჰ৘๭
+ਫ਼๭bᄝଽᇂPSRAMݖeF
+useࡼVDD_SPIູ3.3 Vࠇ1.8 V֥VDD_SPI࿢҂൳GPIO45௜
+ࡼ߶GPIO45b
+5
+5
+4
+4
+3
+3
+2
+2
+1
+1
+D D
+C C
+B B
+A A
+The values of L3, C5, C11, L2 and C12
+v
+ary with the actual PCB board.
+The values of C1 and C4 vary with
+the selection of the crystal.
+The value of R4 varies with the
+actual PCB board. R4 could be a
+resistor or inductor, the initial
+value is suggested to be 24 nH.
+ESP32-S3-WROOM-1(pin-out)
+ESP32-S3R2
+E
+SP32-S3
+NC: No component.
+ESP32-S3R8
+50 ohm Impedance Control
+ESP32-S3R16V
+SPICLK
+SPICS0
+SPIHD
+SPID
+SPIWP
+SPIQ
+SPICS0
+LNA_INRF_ANT
+GPIO39
+GPIO41
+GPIO42
+U0RXD
+GPIO46
+GPIO45
+U0TXD
+SPICLK
+GPIO48
+SPID
+SPIQ
+SPIWP
+SPIHD
+GPIO21
+GPIO20
+GPIO19
+GPIO18
+GPIO17
+GPIO16
+GPIO15
+GPIO14
+GPIO13
+GPIO12
+GPIO11
+GPIO10
+GPIO9
+GPIO8
+GPIO7
+GPIO6
+GPIO5
+GPIO4
+GPIO3
+GPIO2
+GPIO1
+GPIO0
+CHIP_PU
+GPIO38
+GPIO37
+GPIO36
+GPIO35
+GPIO47
+GPIO40
+CHIP_PU
+GPIO4
+GPIO5
+GPIO6
+GPIO7
+GPIO15
+GPIO16
+GPIO17
+GPIO18
+GPIO3
+GPIO46
+GPIO9
+GPIO10
+GPIO11
+GPIO12
+GPIO13
+GPIO14
+GPIO21
+GPIO47
+GPIO48
+GPIO45
+GPIO0
+GPIO35
+GPIO36
+GPIO37
+GPIO38
+GPIO39
+GPIO40
+GPIO41
+GPIO42
+U0RXD
+U0TXD
+GPIO2
+GPIO1
+GPIO8
+GPIO19
+GPIO20
+VDD_SPI
+GND GND GND
+VDD33
+GND GND GND
+GNDGND
+VDD33
+GND
+GND
+VDD33
+GND
+VDD33
+GNDGND
+GND
+VDD_SPI
+GND
+GND
+VDD33
+GND
+GNDGND
+GND
+GND
+GND
+VDD33
+GND
+VDD33
+Title
+Size Page Name Rev
+Date: Sheet o f
+Confidential and Proprietary<02_ESP32-S3-WROOM-1> V1.4
+<ESP32-S3-WROOM-1>
+A4
+2 2Tuesday, November 21, 2023
+Title
+Size Page Name Rev
+Date: Sheet o f
+Confidential and Proprietary<02_ESP32-S3-WROOM-1> V1.4
+<ESP32-S3-WROOM-1>
+A4
+2 2Tuesday, November 21, 2023
+Title
+Size Page Name Rev
+Date: Sheet o f
+Confidential and Proprietary<02_ESP32-S3-WROOM-1> V1.4
+<ESP32-S3-WROOM-1>
+A4
+2 2Tuesday, November 21, 2023
+R16 0
+U3 ESP32-S3-WROOM-1
+GND1
+3V32
+EN3
+IO44
+IO55
+IO66
+IO77
+IO158
+IO169
+IO1710
+IO1811
+IO1913
+IO2014
+IO812
+GND 40
+IO1 39
+IO2 38
+TXD0 37
+RXD0 36
+IO42 35
+IO41 34
+IO40 33
+IO39 32
+IO38 31
+IO37 30
+IO36 29
+IO35 28
+IO0 27
+IO4616
+IO917
+IO1018
+IO1119
+IO1220
+IO1321
+IO1422
+IO2123
+IO4724
+IO4825
+IO315
+IO4526
+EPAD 41
+C11
+TBD
+C13
+0.1uF
+C12
+TBD
+C4
+TBD
+R3 499
+C15
+0.1uF
+C14
+1uF
+R13 0
+C3
+1uF
+C9
+0.1uF
+U1
+VDDA 56
+LNA_IN1
+VDD3P32
+VDD3P33
+GPIO05
+GPIO16
+GPIO27
+GPIO38
+GPIO49
+GPIO510
+GPIO611
+GPIO712
+GPIO1015
+GPIO1116
+GPIO1217
+GPIO1318
+GPIO1419
+XTAL_32K_P21 VDD3P3_RTC20
+XTAL_32K_N22
+GPIO1723
+GPIO1824
+GPIO1925
+GPIO2026
+VDD_SPI 29
+SPIWP 31SPICS0 32
+SPIQ 34SPID 35
+SPICLK 33
+SPICLK_N 36
+GND 57
+SPICLK_P 37GPIO33 38
+GPIO38 43
+GPIO46 52XTAL_N 53XTAL_P 54
+MTMS 48
+MTDO 45
+U0TXD 49
+VDD3P3_CPU 46
+CHIP_PU4
+VDDA 55
+MTDI 47
+GPIO813
+GPIO914
+GPIO2127
+SPICS128
+SPIHD 30
+GPIO34 39GPIO35 40GPIO36 41
+U0RXD 50GPIO45 51
+GPIO37 42
+MTCK 44
+L1 2.0nH(0.1nH)
+C6
+10uF
+R15 0
+Y1
+40MHz(±10ppm)
+XIN1
+GND2 XOUT 3
+GND 4
+C10
+0.1uF
+U2 FLASH VDD 8GND4
+/CS1
+CLK6
+/HOLD7 /WP 3
+DO 2
+DI 5
+R1
+10K(NC)
+C7
+1uF
+L2 TBD
+D1
+ESD
+ANT1
+PCB_ANT
+1
+2
+C1
+TBD
+R4 0
+C5
+TBD R10 0
+C2
+10nF
+L3
+TBD
+C8
+0.1uF
+R14 0
+๭ 5: ESP32-S3-
+WROOM-1 ჰ৘๭
+36 ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 37 =====
+8 ଆቆჰ৘๭
+5
+5
+4
+4
+3
+3
+2
+2
+1
+1
+D D
+C C
+B B
+A A
+The values of C11, L2 and C12
+v
+ary with the actual PCB board.
+The values of C1 and C4 vary with
+the selection of the crystal.
+The value of R4 varies with the
+actual PCB board. R4 could be a
+resistor or inductor, the initial
+value is suggested to be 24 nH.
+ESP32-S3-WROOM-1U(pin-out)
+ESP32-S3R2
+E
+SP32-S3
+NC: No component.
+ESP32-S3R8
+50 ohm Impedance Control
+ESP32-S3R16V
+SPICLK
+SPICS0
+SPIHD
+SPID
+SPIWP
+SPIQ
+SPICS0
+LNA_INRF_ANT
+GPIO39
+GPIO41
+GPIO42
+U0RXD
+GPIO46
+GPIO45
+U0TXD
+SPICLK
+GPIO48
+SPID
+SPIQ
+SPIWP
+SPIHD
+GPIO21
+GPIO20
+GPIO19
+GPIO18
+GPIO17
+GPIO16
+GPIO15
+GPIO14
+GPIO13
+GPIO12
+GPIO11
+GPIO10
+GPIO9
+GPIO8
+GPIO7
+GPIO6
+GPIO5
+GPIO4
+GPIO3
+GPIO2
+GPIO1
+GPIO0
+CHIP_PU
+GPIO38
+GPIO37
+GPIO36
+GPIO35
+GPIO47
+GPIO40
+CHIP_PU
+GPIO4
+GPIO5
+GPIO6
+GPIO7
+GPIO15
+GPIO16
+GPIO17
+GPIO18
+GPIO3
+GPIO46
+GPIO9
+GPIO10
+GPIO11
+GPIO12
+GPIO13
+GPIO14
+GPIO21
+GPIO47
+GPIO48
+GPIO45
+GPIO0
+GPIO35
+GPIO36
+GPIO37
+GPIO38
+GPIO39
+GPIO40
+GPIO41
+GPIO42
+U0RXD
+U0TXD
+GPIO2
+GPIO1
+GPIO8
+GPIO19
+GPIO20
+VDD_SPI
+VDD33
+GND GND
+VDD33
+GND GND GND
+GNDGND
+VDD33
+GND
+GND
+VDD33
+GND
+VDD33
+GNDGND
+GND
+VDD_SPI
+GND
+GND
+VDD33
+GND
+GNDGND
+GND
+GND
+GND
+GND
+VDD33
+Title
+Size Page Name Rev
+Date: Sheet o f
+Confidential and Proprietary<02_ESP32-S3-WROOM-1U> V1.5
+<ESP32-S3-WROOM-1U>
+A4
+2 2Tuesday, November 21, 2023
+Title
+Size Page Name Rev
+Date: Sheet o f
+Confidential and Proprietary<02_ESP32-S3-WROOM-1U> V1.5
+<ESP32-S3-WROOM-1U>
+A4
+2 2Tuesday, November 21, 2023
+Title
+Size Page Name Rev
+Date: Sheet o f
+Confidential and Proprietary<02_ESP32-S3-WROOM-1U> V1.5
+<ESP32-S3-WROOM-1U>
+A4
+2 2Tuesday, November 21, 2023
+C11
+TBD
+U3 ESP32-S3-WROOM-1U
+GND1
+3V32
+EN3
+IO44
+IO55
+IO66
+IO77
+IO158
+IO169
+IO1710
+IO1811
+IO1913
+IO2014
+IO812
+GND 40
+IO1 39
+IO2 38
+TXD0 37
+RXD0 36
+IO42 35
+IO41 34
+IO40 33
+IO39 32
+IO38 31
+IO37 30
+IO36 29
+IO35 28
+IO0 27
+IO4616
+IO917
+IO1018
+IO1119
+IO1220
+IO1321
+IO1422
+IO2123
+IO4724
+IO4825
+IO315
+IO4526
+EPAD 41
+R16 0
+C12
+TBD
+ANT1
+CONN
+1
+2
+3
+C13
+0.1uF
+C4
+TBD
+D1
+ESD
+C15
+0.1uF
+R3 499
+R13 0
+C14
+1uF
+U1
+VDDA 56
+LNA_IN1
+VDD3P32
+VDD3P33
+GPIO05
+GPIO16
+GPIO27
+GPIO38
+GPIO49
+GPIO510
+GPIO611
+GPIO712
+GPIO1015
+GPIO1116
+GPIO1217
+GPIO1318
+GPIO1419
+XTAL_32K_P21 VDD3P3_RTC20
+XTAL_32K_N22
+GPIO1723
+GPIO1824
+GPIO1925
+GPIO2026
+VDD_SPI 29
+SPIWP 31SPICS0 32
+SPIQ 34SPID 35
+SPICLK 33
+SPICLK_N 36
+GND 57
+SPICLK_P 37GPIO33 38
+GPIO38 43
+GPIO46 52XTAL_N 53XTAL_P 54
+MTMS 48
+MTDO 45
+U0TXD 49
+VDD3P3_CPU 46
+CHIP_PU4
+VDDA 55
+MTDI 47
+GPIO813
+GPIO914
+GPIO2127
+SPICS128
+SPIHD 30
+GPIO34 39GPIO35 40GPIO36 41
+U0RXD 50GPIO45 51
+GPIO37 42
+MTCK 44
+C9
+0.1uF
+C3
+1uF
+R15 0
+C6
+10uF
+L1 2.0nH(0.1nH)
+R1
+10K(NC)
+U2 FLASH VDD 8GND4
+/CS1
+CLK6
+/HOLD7 /WP 3
+DO 2
+DI 5
+C10
+0.1uF
+Y1
+40MHz(±10ppm)
+XIN1
+GND2 XOUT 3
+GND 4
+L2 TBD
+C7
+1uF
+C1
+TBD
+R10 0
+R4 0
+C2
+10nF
+R14 0
+C8
+0.1uF
+๭ 6: ESP32-S3-
+WROOM-1U ჰ৘๭
+37 ESP32-S3-
+WROOM-1 & WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 38 =====
+9ჰ৘๭
+9ჰ৘๭
+໊ο୦aJTAG१a
+UARTਫ਼๭b
+5
+5
+4
+4
+3
+3
+2
+2
+1
+1
+D D
+C C
+B B
+A A
+NC: No component.
+X
+1: ESR = Max. 70 Kȍ
+For ESP32-S3-WROOM-1-N16R16V and ESP32-S3-WROOM-1U-N16R16V, IO47/IO48 operates in the 1.8V voltage domain.
+EN
+IO42 TMS
+IO41 TDI
+IO37
+IO36
+IO38
+IO40 TDO
+IO39 TCK
+TXD0
+RXD0
+IO35
+IO48
+IO47
+IO12
+IO13
+IO3
+IO6
+IO7
+IO9
+IO10
+IO11
+IO15
+IO16
+IO14
+IO21
+IO17
+IO18
+USB_D-
+USB_D+
+IO1
+IO2
+IO45
+IO4
+IO5
+IO0
+EN
+IO19
+IO20
+IO46
+IO8
+GND
+GND GND
+VDD33 GND GND
+GND
+GND
+GND
+VDD33
+GNDGND
+GND
+GND
+C3
+0.1uF
+JP4
+Boot Option
+11 22
+SW1
+C4 12pF(NC)
+U1
+ESP32-S3-WROOM-1/ESP32-S3-WROOM-1U
+GND1
+3V32
+EN3
+IO44
+IO55
+IO66
+IO77
+IO158
+IO169
+IO1710
+IO1811
+IO1913
+IO2014
+IO812
+GND 40
+IO1 39
+IO2 38
+TXD0 37
+RXD0 36
+IO42 35
+IO41 34
+IO40 33
+IO39 32
+IO38 31
+IO37 30
+IO36 29
+IO35 28
+IO0 27
+IO4616
+IO917
+IO1018
+IO1119
+IO1220
+IO1321
+IO1422
+IO2123
+IO4724
+IO4825
+IO315
+IO4526
+EPAD 41
+R7 0
+R4 0
+C2 TBD
+X1
+32.768KHz(NC)
+12
+R2 NC
+R5 0(NC)
+R1 TBD
+C5
+TBD
+R3 0(NC)
+JP1
+UART
+11
+22
+33
+44
+C1
+22uF
+C8 0.1uF
+R6 0
+JP3
+USB OTG
+1 1
+2 2
+JP2
+JTAG
+11
+22
+33
+44
+C7 12pF(NC)
+C6
+TBD
+๭ 7:ჰ৘๭
+• EPAD֥GND೛ಣหྟb
+ࡼEPADָ֞ࢤݯ
+b
+• ູಒЌ ESP32-S3ᆞӈđENࡆRCਫ਼bRCၰູ R = 10 kΩđ
+C=1 µFᆜbESP32-S3ഈ
+໊ൈ྽๭ॖҕॉ uESP32-S3඀v>ࢫჷb
+࠯38
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 39 =====
+10۬ܿ
+10۬ܿ
+10. 1 ଆቆԄժ
+25.5±0.2
+1.5
+1.27
+16.51
+40 x 0.9
+40 x 0.9
+3.1±0.15
+Top View Side View Bottom View
+18±0.2
+15.8
+17.6
+40 x 0.45 1
+1.05
+0.8
+40 x 0.85
+0.5
+3.7
+40 x Ø0.55
+6
+0.9
+Ø0.5
+Unit: mm
+13.97 1.27 2.015
+ESP32-S3-WROOM-1U Dimensions
+1.5
+1.27
+16.51
+40 x 0.9
+Top View Bottom View
+18±0.2
+40 x 0.45 40 x 0.85
+0.5
+3.7
+10.75
+15.65
+17.5
+0.9
+Side View
+40 x 0.9
+19.2±0.2
+40 x Ø0.55
+0.8
+1.08
+1.1 2.46
+3
+1.27
+3.2±0.15
+Unit: mm
+13.97 2.015
+13.1
+Ø0.5 7.5
+10.29
+0.9
+3.7
+0.9
+3.7
+10.29 7.5
+๭ 8: ESP32-S3-WROOM-1 ଆቆԄժ
+25.5±0.2
+1.5
+1.27
+16.51
+40 x 0.9
+40 x 0.9
+3.1±0.15
+Top View Side View Bottom View
+18±0.2
+15.8
+17.6
+40 x 0.45 1
+1.05
+0.8
+40 x 0.85
+0.5
+3.7
+40 x Ø0.55
+6
+0.9
+Ø0.5
+Unit: mm
+13.97 1.27 2.015
+ESP32-S3-WROOM-1U Dimensions
+1.5
+1.27
+16.51
+40 x 0.9
+Top View Bottom View
+18±0.2
+40 x 0.45 40 x 0.85
+0.5
+3.7
+10.75
+15.65
+17.5
+0.9
+Side View
+40 x 0.9
+19.2±0.2
+40 x Ø0.55
+0.8
+1.08
+1.1 2.46
+3
+1.27
+3.2±0.15
+Unit: mm
+13.97 2.015
+13.1
+Ø0.5 7.5
+10.29
+0.9
+3.7
+0.9
+3.7
+10.29 7.5
+๭ 9: ESP32-S3-WROOM-1U ଆቆԄժ
+࠯39
+࡮
+ESP32-S3-WROOM-1 &
+WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 40 =====
+10۬ܿ
+10.2ఖԄժ
+ESP32-S3-
+WROOM-1U ҐႨ๭10ఖԄժ๭ಸğ
+•᜜(Hirose)֥U.FLఖ
+• I-PEX֥MHF Iఖ
+•୶(Amphenol)֥AMCఖ
+Unit: mm
+๭ 10:ఖԄժ๭
+࠯40
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 41 =====
+11 PCBၰ
+11 PCBၰ
+1
+1. 1 PCBል๭ྙ
+ଢ଼ҕॉğ
+•ࡩPCBል๭đ ѓႵPCB๭11 ESP32-S3-WROOM-1ࡩPCBል๭๭
+12 ESP32-S3-WROOM-1UࡩPCBል๭b
+•ࡩPCBđႨႿҩਈ๭11ބ12Ԅժbଢ଼ॖႨAutode
+skViewer Ұु
+ESP32-S3-WROOM-1ބESP32-S3-WROOM-1Ub
+• ESP32-S3-WROOM-1ބESP32-S3-WROOM-1U֥3D ଆ
+֥3D ଆ྘ູ.STEPൔčᇿၩđ
+ࡆ߶txtሗĎ b
+Antenna Area
+1
+15 26
+40
+18
+25.5
+40 x1.5
+40 x0.9
+1.5
+3.7
+0.9
+0.9
+3.7
+7.5
+1.27 6
+0.5
+ESP32-S3-WROOM-1U Land Pattern
+1
+15
+18
+26
+1.5
+19.2
+40 x1.5
+1.27
+40 x0.9
+40
+0.5
+0.5
+3.7
+3.7
+0.9
+0.9
+7.5
+0.5
+Unit: mm
+Copper
+Via for thermal pad
+Unit: mm
+Copper
+Via for thermal pad
+7.49
+10.29
+0.5
+0.5
+2.015 2.015
+1.27
+17.5
+10.29
+16.51
+1.27
+2.015 2.015
+17.5
+16.51
+1.19
+๭ 11: ESP3
+2-S3-WROOM-1ࡩPCBል๭
+࠯41
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 42 =====
+11 PCBၰ
+Antenna Area
+1
+15 26
+40
+18
+25.5
+40 x1.5
+40 x0.9
+1.5
+3.7
+0.9
+0.9
+3.7
+7.5
+1.27 6
+0.5
+ESP32-S3-WROOM-1U Land Pattern
+1
+15
+18
+26
+1.5
+19.2
+40 x1.5
+1.27
+40 x0.9
+40
+0.5
+0.5
+3.7
+3.7
+0.9
+0.9
+7.5
+0.5
+Unit: mm
+Copper
+Via for thermal pad
+Unit: mm
+Copper
+Via for thermal pad
+7.49
+10.29
+0.5
+0.5
+2.015 2.015
+1.27
+17.5
+10.29
+16.51
+1.27
+2.015 2.015
+17.5
+16.51
+1.19
+๭ 12: ESP3
+2-S3-WROOM-1UࡩPCBል๭
+11.2 PCBଆቆ໊ᇂϥ٢
+ྛ on-boardଆቆ PCB ฿ཌ
+႕ཙb
+Ⴟ PCBྐ༏đ౨ҕॉ uESP32-S3ᆷଲv >ࢫଆ
+໊ᇂ
+ϥ٢b
+࠯42
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 43 =====
+12 Ӂ௖ԩ৘
+12 Ӂ௖ԩ৘
+12.
+1ࡱ
+Ӗտ(MBB)Ӂ௖ႋԥթᄝ< 40 °C/90%RHᇏb
+ࠩ֩؇ۋMSL ູ3b
+đ ᄝ25±5°Ca60%RH ༯đ сྶᄝ168Ցഈཌb
+12.2׈٢׈࣡ESD)
+•ଆൔ(HBM)ğ±2000 V
+•ଆൔ(CDM)ğ±500 V
+12.3౷ཌ
+b
+50 1000
+150
+200
+250
+200
+100
+50
+150 250
+   
+217
+25
+180
+230
+升温区
+25 – 150 °C
+60 – 90 s
+1 – 3 °C/s
+预热区
+150 – 200 °C
+60 – 120 s
+焊接区
+＞ 217 °C
+60 – 90 s
+冷却区
+＜ 180 °C
+–5 ~ –1 °C/s
+温度 (°C)
+时间 (s)
+峰值温度：235 – 250 °C
+峰值时间：30 – 70 s
+焊接时间：＞ 30 s
+焊料：锡银铜合⾦⽆铅焊料 (SAC/three.case/zero.case/five.case)
+๭ 13:౷ཌ
+࠯43
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 44 =====
+12 Ӂ௖ԩ৘
+12.4 ׮
+ॖିაଆቆଽ҆
+ᅰമᇀാਲđ߄b
+࠯44
+࡮
+ESP32-S3-WROOM-1 &
+WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 45 =====
+ሧჷ
+࠯45
+࡮
+ESP32-S3-WROOM-1 &
+WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 46 =====
+৥ൎ
+৥ൎ
+ರ௹ ϱЧ҃ඪૼ
+202
+4-11-14 v1.4
+•ଆቆ
+ݼESP32-S3-WROOM-1-N16R16VބESP32-S3-WROOM-1U-
+N16R16V ۷଀ູ ESP32-S3-WROOM-1-N16R16VAބESP32-S3-WROOM-
+1U-N16R16VA
+•ࢫ1.2бඪૼ
+•ࢫ1.3 ႋႨ
+•ࢫStrapping࢖ܵࢫ4஥ᇂཛ
+•ࢫ5.2 ຓഡ૭ඍ
+•ࢫగหྟࢫ6గหྟࢫ7 ഝ௔หྟބ
+ծՊ
+•ࢫބPCBል๭ྙࢫ10۬ܿބ 11 PCBࡹ
+ၰࢫ11.2 PCBଆቆ໊ᇂϥ٢
+•ࢫ11.1 PCBል๭ྙ ᇏྍᄹESP32-S3-WROOM-1U֥3Dࢤ
+•ྍ๭13౷ཌ
+•Ցေ۷ྍ
+202
+3-11-24 v1.3
+• ྍᄹଆ
+ݼESP32-S3-WROOM-1-N16R16VAބESP32-S3-WROOM-
+1U-N16R16VAྐ༏
+• ۷ྍі2 ESP32-S3-WROOM-1Uбіᇿ
+•ࢫ4.1ଆൔ॥ᇅ
+•ࢫ8 ଆቆჰ৘๭ଆቆჰ৘๭
+•ࢫ10.1 ଆቆԄժଆቆԄժ๭
+•׮ڿ
+202
+3-03-07 v1.2
+•ࢫStrapping࢖ܵ
+•ࢫ6.
+4หྟ
+•ࢫ7.2.1ഝఖ (TX) หྟቋཬ
+ᆴ
+•ࢫ9ჰ৘๭૭ඍ
+•ࢫ11.1 PCBል๭ྙ૭ඍ
+•ࢫ12.4
+•׮ڿ
+202
+2-07-22 v1.1
+• ۷ྍі1ބ2
+•׮ڿ
+202
+2-04-21 v1.0
+•ড࿩ഝ௔ඔऌ
+• ۷ྍі14ඔऌ
+•ҩ൫ྐ༏
+•ࢫStrapping࢖ܵ
+༯်
+࠯46
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 47 =====
+৥ൎ
+ഈ်
+ರ௹ ϱЧ҃ඪૼ
+202
+1-10-29 v0.6ྉோϱЧrevision
+1
+202
+1-07-19 v0.5.
+1ྉோϱЧrevision
+0
+࠯47
+࡮
+ESP32-S3-WROOM-1
+& WROOM-1U඀v1.4
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
+
+===== PAGE 48 =====
+Y)s+^úQW@ÿhttps://telesky.tmall.com/
