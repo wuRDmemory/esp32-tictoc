@@ -412,6 +412,47 @@ MTCK-MTMS / U0RXD-U0TXD / CLK_OUTx / XTAL_32K`，**一个摄像头信号都没�
 **要找摄像头引脚，得看 AI-Thinker 的板级原理图。** 模组手册只能告诉你外设规格：
 **8~16 位 DVP、时钟 < 40 MHz、支持 RGB565 / YUV422 / YUV420 / YUV411**。
 
+### ✅ 摄像头引脚已由原理图实证（2026-10-07）
+
+板级原理图：`hello_world/docs/modules/ESP32-S3CAM原理图.pdf`（第 1 页）
+可 grep 文本版：同目录 `ESP32-S3CAM原理图.txt`
+
+**16 项与 `xiaozhi-esp32/.../config.h` 逐条比对，全部一致** —— 原先的「高置信度推测」
+升级为**实证**：
+
+| 信号 | GPIO | | 信号 | GPIO |
+|---|---|---|---|---|
+| CAM_Y2 (OV_D0) | 11 | | CAM_XCLK | 15 |
+| CAM_Y3 (OV_D1) | 9 | | CAM_PCLK | 13 |
+| CAM_Y4 (OV_D2) | 8 | | CAM_VYSNC | 6 |
+| CAM_Y5 (OV_D3) | 10 | | CAM_HREF | 7 |
+| CAM_Y6 (OV_D4) | 12 | | CAM_SIOD | 4 |
+| CAM_Y7 (OV_D5) | 18 | | CAM_SIOC | 5 |
+| CAM_Y8 (OV_D6) | 17 | | PWDN | **NC**（1K 下拉到 GND） |
+| CAM_Y9 (OV_D7) | 16 | | RESET | **NC**（接 `EN` 网络） |
+
+**⚠️ 命名陷阱（核对时最容易错）**：原理图数据线叫 **`CAM_Y2`~`CAM_Y9`**，
+而 OV2640 侧标 `OV_D0`~`OV_D7` —— **Y2↔D0、Y3↔D1、…、Y9↔D7（下标差 2）**。
+按"Y0↔D0"对会**整体错位 2 位**，症状是花屏且极难联想到此处。
+
+**两处与常见接线不同**（都是原理图确认的，不是遗漏）：
+- `OV_PWDN` 经 **R11(1K) 下拉到 GND**，**不接 GPIO** → 摄像头**常使能**
+- `OV_RESET` 接 **`EN` 网络**（板复位），**没有 GPIO 控制**
+
+顺带：原理图把 VSYNC 拼成了 `CAM_VYSNC`（字母序错），**是原图笔误**，别去"修正"。
+
+**读这份原理图的办法**（3 页 A4 横向，文本提取会丢空间布局）：
+用 `coordinates` 定位标号 → 渲染局部高清图再看：
+```python
+import pymupdf
+pg = pymupdf.open("ESP32-S3CAM原理图.pdf")[0]
+pix = pg.get_pixmap(matrix=pymupdf.Matrix(5, 5),   # 放大倍数，5~12 之间够用
+                    clip=pymupdf.Rect(105, 105, 300, 355))   # 目标区块
+pix.save("/tmp/crop.png")     # 再用 Read 工具看图
+```
+标号坐标用 `pg.get_text("words")` 拿（返回 `x0,y0,x1,y1,文本`），
+不必一页页看图。
+
 ---
 
 ## ~~目标板：ESP32-PICO-V3-02~~（**已停止验证**，见 D14）
